@@ -1,0 +1,25 @@
+{
+  "name": "gutfeeling",
+  "version": "0.0.0",
+  "description": "Digestion and Gastro Health Game",
+  "main": "load.js",
+  "scripts": {
+    "prestart": "npm install",
+    "postinstall": "bower install",
+    "start": "node load.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/drzaal/gut-feeling.git"
+  },
+  "author": "Zaal Tonia",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/drzaal/gut-feeling/issues"
+  },
+  "dependencies": {
+    "http": "0.0.0",
+    "bower": "~1.4.1"
+  }
+}

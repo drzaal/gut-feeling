@@ -1,0 +1,34 @@
+{
+  "name": "gutfeeling",
+  "version": "0.0.0",
+  "homepage": "https://github.com/drzaal/gut-feeling",
+  "main": "load.js",
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node",
+    "yui"
+  ],
+  "keywords": [
+    "game",
+    "gastro",
+    "stomach"
+  ],
+  "authors": [
+    "Zaal Tonia",
+    "Duncan David"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "angular-route": "~1.4.1"
+  }
+}
