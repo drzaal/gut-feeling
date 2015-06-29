@@ -34,8 +34,12 @@ div {
 }
 #loader {
   position: fixed;
-  top: 0;
-  left: 0;
   right: 0;
   bottom: 0;
   z-index: 0;
+  width: 170px;
+  height: 130px;
+}
+#loader img {
+  width: 100%;
+}
