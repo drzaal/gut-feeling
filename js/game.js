@@ -1,6 +1,7 @@
 var stage;
 var nibbles = [];
-var food_assets = [ ];
+var food_assets = {};
+var ill_assets = {};
 var gastro_vertices = [
   [200, 5],
   [200, 25],
@@ -25,16 +26,38 @@ var stageH;
 $(function() {
 
   food_assets['c_wing'] = PIXI.Texture.fromImage('img/c_wing.gif');
+  var tmp_ill_texture = PIXI.Texture.fromImage('img/ill_00.png');
+  ill_assets['ecoli'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(0, 0, 256, 256));
+  ill_assets['stephalo'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(256, 0, 256, 256));
+
   stageW = $("#stage").width();
   stageH = $("#stage").height();
 
   stage = new PIXI.Stage(0xffffff);
-  renderer = PIXI.autoDetectRenderer(stageW, stageH);
+  renderer = PIXI.autoDetectRenderer(stageW, stageH, { transparent: true});
 
   $("#stage").append(renderer.view);
 
+  var corpus_primus = new PIXI.Sprite(PIXI.Texture.fromImage('img/body.png'));
+  corpus_primus.width = corpus_primus.width * stageH * 0.85 / corpus_primus.height;
+  corpus_primus.height = stageH * 0.85;
+  corpus_primus.anchor.x = 0.5;
+  corpus_primus.anchor.y = 1;
+  corpus_primus.position.x = stageW/2;
+  corpus_primus.position.y = stageH;
+
+  stage.addChild( corpus_primus );
+
   $("canvas").click(function(event){
-    var omnom = new PIXI.Sprite(food_assets['c_wing']);
+	if (new Date() & 2) {
+		var omnom = new PIXI.Sprite(ill_assets['ecoli']);
+	}
+	else {
+		var omnom = new PIXI.Sprite(ill_assets['stephalo']);
+	}
+	omnom.width = 64;
+	omnom.height = 64;
+    //var omnom = new PIXI.Sprite(food_assets['c_wing']);
 
     omnom.anchor.x = 0.5;
     omnom.anchor.y = 0.5;
