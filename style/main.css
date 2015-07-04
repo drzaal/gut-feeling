@@ -43,3 +43,62 @@ div {
 #loader img {
   width: 100%;
 }
+/* HANDLING ACTION EVENTS */
+
+@keyframes slide_up {
+	from { margin-top: 100%; opacity: 0; }
+	to { margin-top: 0; opacity: 1; }
+}
+@-moz-keyframes slide_up, @-moz-keyframes slide_up {
+	from { margin-top: 100%; opacity: 0; }
+	to { margin-top: 0; opacity: 1; }
+}
+@-webkit-keyframes slide_up {
+	from { margin-top: 100%; opacity: 0; }
+	to { margin-top: 0; opacity: 1; }
+}
+@keyframes fade_out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+@-moz-keyframes fade_out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+@-webkit-keyframes fade_out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+.action-event-pane {
+	animation-name: slide_up;
+	animation-duration: 0.75s;
+	-moz-animation-name: slide_up;
+	-moz-animation-duration: 0.75s;
+	-webkit-animation-name: slide_up;
+	-webkit-animation-duration: 0.75s;
+}
+.action-event-pane.deleted {
+	animation-name: fade_out;
+	animation-duration: 0.75s;
+	-moz-animation-name: fade_out;
+	-moz-animation-duration: 0.75s;
+	-webkit-animation-name: fade_out;
+	-webkit-animation-duration: 0.75s;
+}
+#action-event-panel {
+  position: fixed;
+  vertical-align: top;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  width: 200px;
+  margin: 0;
+  padding: 0;
+}
+.action-event-pane {
+  position: relative;
+  width: 95%;
+  top: 0px;
+  background-color: #ce9;
+  border-radius: 10px;
+}
