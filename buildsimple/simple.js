@@ -1,6 +1,7 @@
 
 //outputUpdate is not working inside of jQuery, either jQuery breaks querySelector...
 //or more likely, it's a scope problem related to what the sliders are calling. I realize I am a bad person for doing it this way.
+//todo refactor outputUpdate to take event, use this
  function outputUpdate(item, tag) {
 	document.querySelector(tag).value = item;
 	var score = $("#score").text();
@@ -34,7 +35,9 @@
 $( document).ready(function() {
 
 
-//utility functions)
+//this is a magical selector
+$('#acidslider').on('input change', function(){outputUpdate($('acidslider').val(), '#acid')});
+//(utility functions)
 function randomizer (min, max){
 	return Math.floor(Math.random()*((max-min) +1)) + min;
 }
@@ -101,6 +104,9 @@ function newScore(food){
 //counter function, recursive
 function countDown(){
 	var counter = 4;
+	if(gameover){
+		return;
+	}
 	setInterval(function() {
     	counter--;
     	if (counter >= 0) {
@@ -144,8 +150,8 @@ $(".upgrade2").click(function(){
 
 //quick and dirty defeat flag
 var gameOver = false;
-while(gameOver){
-	break;
+if(gameOver){
+	return;
 }
 //init
 countDown();
