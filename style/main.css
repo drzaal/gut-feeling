@@ -32,6 +32,15 @@ div {
   width: 400px;
   background-color: #ce9;
 }
+#control-overlay {
+  position: fixed;
+  top: 100px;
+  bottom: 200px;
+  left: 10px;
+  width: 400px;
+  margin-right: auto;
+  right: auto;
+}
 #loader {
   position: fixed;
   right: 0;
