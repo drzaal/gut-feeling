@@ -25,7 +25,7 @@ var ActionEventQ = function( args ) {
 	/* Process all triggers into active state. Doing this so that I can make it happen at a safe time */
 	self.processTriggers = function ( trigger ) {
 		self.triggered.forEach(function(a) {
-			var tmp_action = new ActionEventOne( a );
+			var tmp_action = new ActionEventOne( self, a );
 			self.q.push( tmp_action );
 			self.html.append( tmp_action.view );
 			
@@ -69,8 +69,9 @@ var ActionEventQ = function( args ) {
 		}
 	}
 	/* Define the Individual action event data object. This should make life easier to handle */
-	var ActionEventOne = function( args ) {
+	var ActionEventOne = function( parent, args ) {
 		var self = this;
+		self.parent = parent;
 		self.title = args.title ? args.title : "";
 		self.descr = args.descr ? args.descr : "";
 		self.expiry = args.expiry || self.parent.defaults.expiry; // How long our action event lasts.
@@ -103,7 +104,6 @@ var ActionEventQ = function( args ) {
 			self = null;
 		}
 	};
-	ActionEventOne.prototype.parent = self;
 }
 
 $(function() {
