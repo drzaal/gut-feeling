@@ -8,10 +8,14 @@
 // Long term, they are best put together in classes and namespaces. Just easier to deal with.
 
 /* On input change, Display output must change to reflect new values. */
+$(function() {
+var gameStart = function gameStart() {
+  function init (){
+  $('body').removeClass('mainmenu');
 function outputUpdate(item, tag) {
   $(tag).val(item);
   var score = $("#score").text();
-  var newTotal = parseInt(score, 10) - 1; // Straight up, what. Every time you change your value you just decrement your scoretotal?
+  var newTotal = parseInt(score, 10) - 5; // Straight up, what. Every time you change your value you just decrement your scoretotal?
   $("#score").text(newTotal);
 }
 
@@ -70,8 +74,8 @@ $(function() {
   corpus_primus.position.y = stageH;
 
   stage.addChild( corpus_primus );
-
   $("canvas").click(function(event){
+
 	if (new Date() & 2) {
 		var omnom = new PIXI.Sprite(ill_assets['ecoli']);
 	}
@@ -96,6 +100,7 @@ $(function() {
   });
 
 
+
   requestAnimationFrame( animate );
   setInterval( main, 30 );
   countDown();
@@ -110,16 +115,19 @@ var main = function() {
   nibbles.forEach(function(nibble){
     nibble.path_percent += 0.2;
     var path_bias = pathPercent2Cart( nibble.path_percent );
-    nibble.x += (path_bias.x - nibble.x) / 20;  
-    nibble.y += (path_bias.y - nibble.y) / 20;  
+    nibble.x += (path_bias.x - nibble.x) / 20;
+    nibble.y += (path_bias.y - nibble.y) / 20;
     nibble.rotation += 0.1;
   });
 };
+
 
 /**
  * Converts a given percentage to a coordinate along a bounded vertex-defined linear path.
  * @TODO Please note this is tied explicitly to the Gastro vertices and must be generalized
  */
+
+
 var pathPercent2Cart = function( percent ) {
   if (percent < 100) {
     var lite_post_id = Math.floor( percent/100 * gastro_vertices.length );
@@ -133,25 +141,6 @@ var pathPercent2Cart = function( percent ) {
 
 
 
-
-
-//Arguably totally wrongheaded attempt at a jQuery version.
-/* function outputUpdate(item, tag){
-  $('#score').on('input', function() {
-    $(tag).value = item;
-      var score = $("#score").text;
-      var newTotal = parseInt(score, 10) - 1;
-    $("#score").text(newTotal);
-    if ($("#score").text() == -1){
-        alert("you died of stomach illness!");
-        $("body").empty();
-        $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead. Press reload to try again.");
-        gameOver = true;
-    }
-  });
-}; */
-//this is a magical selector
-// Looks like you aren't super comfortable with the way that selectors work yet. Also note the event is "on input"
 $('#acidslider').on("input", function(){ outputUpdate($('#acidslider').val(), '#acid')});
 $('#meatslider').on("input", function(){ outputUpdate($('#meatslider').val(), '#meat')});
 $('#veggieslider').on("input", function(){ outputUpdate($('#veggieslider').val(), '#veggie')});
@@ -210,14 +199,21 @@ function newScore(food){
     var select = newArr.push($("#" + item).text());
   });
   // If you're reliant on the index, DO NOT USE A FOREACH. Use a true for loop. Not only is that explicitly what it's designed for, but a traditional for loop is faster than a foreach by nearly an order of magnitude.
-  newArr.forEach(function(item, index, arr){ 
+
+  function scoreUpdate(arr, food){
+    var i = 0;
+    for(i; i < arr.length; i++){
+      arr[i] = food.stats
+    }
+  }
+  newArr.forEach(function(item, index, arr){
     item = parseInt(item);
 	// Whatever you are doing here is complete nonsense. Try to break down what behavior you actually want, and make it clear here.
     var newTotal = (item) - food.stats[masterArr.nutrientNames[index]];
     //there's a problem with index not synching up and returning an undefined at the beginning of the array.
     //it can be monkey patched better than this, but I'd rather know why it's happening.
     if(item !== NaN && item !== undefined){
-        var points = Math.abs(newTotal) - 10;
+      var points = Math.abs(newTotal) - 10;
       var finalist = Math.abs(points);
       $("#score").text(parseInt($("#score").text()) + finalist);
     }
@@ -231,12 +227,14 @@ function newScore(food){
 // Nononono. Oh god no. Always make sure the chain of activity ownership for your code is clear. See above for the main game loop. Function main.
 var digestion_counter = 4;
 function countDown(){
-  if ($("#score").text() == -1){ // GameOver check should not depend only on direct player input. Maybe it belongs both places. Not sure.
+  if ($("#score").text() <= -10){ // GameOver check should not depend only on direct player input. Maybe it belongs both places. Not sure.
       alert("you died of stomach illness!");
       $("body").empty();
-      $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead. Press reload to try again.");
+      $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead.");
       var gameOver = true;
-	  return;
+       setTimeout(function(){
+        return titleScreen().init();
+      }, 3500);
   }
   setTimeout(function() { // Making it a timeout just so I know it ALWAYS is calling countDown once first.
     digestion_counter--;
@@ -246,7 +244,7 @@ function countDown(){
       $("#curfood").text(randomFood.named);
       newScore(randomFood);
     }
-    $("#count").text(digestion_counter); // No sense in the conditional. 
+    $("#count").text(digestion_counter); // No sense in the conditional.
     countDown();
   }, 1000);
 }
@@ -275,8 +273,59 @@ $(".upgrade2").click(function(){
     $(".upgrade2").text("Upgrade Slider Capacity (cost of " + baseUpCost + ")");
   }
 });
+  //var titleScreen = mainMenuRet().init();
+
+  //main menu;
+  //placeholder block
+  function optionAdd(id, titled, goesTo){
+    $("<div>").addClass("option").text(titled).attr('id', id).appendTo(".mainopts");
+    $("#" + id).on("click", function(){
+      goesTo();
+    })
+  };
+
+  var titleScreen = function mainMenuRet(){
+    console.log(gameStart);
+    function init(){
+    //placeholder menu functions
+      var newgame = function(){
+        alert("This is where the new game would go, just saying");
+      }
+      var scenarios = function(){
+        alert("Scenarios: Seafood Buffet, 21st Birthday, Street Food Adventure")
+      };
+      var credits = function(){
+        alert("Zaal and Duncan made this, hold your applause");
+      };
+      var options = function(){
+        alert("Sound on/off and High Scores");
+      }
+      $("body").empty();
+      $("body").addClass("mainmenu");
+      $("<section>").addClass("title").appendTo("body");
+      $("<section>").addClass("mainopts").appendTo("body");
+      $("<h1>").addClass("titletext").appendTo(".title");
+      $(".titletext").text("Gut Feeling")
+      optionAdd("newgame", "New Game", gameStart().init);  //pass as function, without calling;
+      optionAdd("scenarios", "Scenarios", scenarios);
+      optionAdd("credits", "Credits", credits);
+      optionAdd("options", "Options", options);
+    }
+    return {
+      init: init
+    };
+  }
 
 //quick and dirty defeat flag
- gameOver = false;
+  var gameOver = true;
+  //countDown();
 
 });
+}
+  return {
+    init:init
+  }
+};
+gameStart().init();
+});
+
