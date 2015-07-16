@@ -8,6 +8,67 @@
 // Long term, they are best put together in classes and namespaces. Just easier to deal with.
 
 /* On input change, Display output must change to reflect new values. */
+
+/*
+<!DOCTYPE html>
+<html>
+<head>
+<body>
+  <div id="header">GUT FEELING</div>
+  <div id="stage"></div>
+  <div id="footer">z0lly and duncan
+  </div>
+  <div id="control-overlay">
+    <!--Use the overlay we talked about, man. Inspect this div to see what I did.-->
+  <p id="curfood">Displays Current Food</p>
+  <p>Time left to prepare digestion:</p>
+  <p id="count">3<p>
+  <p>Nutrients (score):</p>
+  <p id="score">25</p>
+  <p>Nutrient Absorbtion Rate:</p>
+  <p id="rate">10</p>
+  <label for="fader">Gastric Acid</label>
+  <input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="acidslider">
+  <output for="fader" id="acid">5</output>
+  <br>
+  <label for="fader"> Meat and Dairy</label>
+  <input type="range" min="0" max="10" class="mrslider" value="5" id="meatslider" step="1">
+  <output for="meat" id="meat">5</output>
+  <br>
+  <label for="fader">Vegetables</label>
+  <input type="range" class="mrslider" min="0" max="10" value="5" id="veggieslider" step="1">
+  <output for="veggie" id="veggie">5</output>
+  <br>
+  <label for="fader">Carbohydrates</label>
+  <input type="range" class="mrslider" min="0" max="10" value="5" id="carbsslider" step="1">
+  <output for="carbs" id="carbs">5</output>
+  <br>
+  <label for="fader"> Vitamins</label>
+  <input type="range" class="mrslider" min="0" max="10" value="5" id="vitaminslider" step="1">
+  <output for="vita" id="vita">5</output>
+  <br>
+  <button class="upgrade1">Upgrade Nutrient Absorbtion (cost of 200)</button>
+  <button class="upgrade2">Upgrade Slider Capacity (cost of 200)<button>
+  </div>
+  <div id="loader">
+  </div>
+</body>
+</html>
+
+*/
+
+
+/*<div id="control-overlay">
+    <!--Use the overlay we talked about, man. Inspect this div to see what I did.-->
+  <p id="curfood">Displays Current Food</p>
+  <p>Time left to prepare digestion:</p>
+  <p id="count">3<p>
+  <p>Nutrients (score):</p>
+  <p id="score">25</p>
+  <p>Nutrient Absorbtion Rate:</p>
+  <p id="rate">10</p>*/
+
+
 $(function() {
 var gameStart = function gameStart() {
   function init (){
@@ -22,6 +83,55 @@ function outputUpdate(item, tag) {
 
 /* This is our onload Initialization function, and will be our bootstrapper once we get better. */
 $(function() {
+
+function allDisp(){
+$("<div>").attr("id", "loader").appendTo("body");
+//$("<div>").attr("id", "control-overlay").appendTo("body"); //will need to make the sliders
+$("<header>").attr("id", "header").text("GUT FEELING").appendTo("body");
+$("<footer>").attr("id", "footer").text("z0lly and duncan").appendTo("body");
+$("<div>").attr("id", "stage").appendTo("body");
+$("<div>").attr("id", "control-overlay").appendTo("body");
+$("<div>").attr("id", "loader").appendTo("body");
+var gameDisp = [
+  $("<button>").addClass("upgrade1"),
+  $("<button>").addClass("upgrade2"),
+  $("<p>").attr("id", "curfood").text("food text here"),
+  $("<p>").text("Time left to prepare digestion:"),
+  $("<p>").attr("id", "count").text("3"),
+  $("<p>").text("Nutrients (score"),
+  $("<p>").attr("id", "score").text("20"),
+  $("<p>").text("Nutrient Absorbtion Rate:"),
+  $("<p>").attr("id", "rate").text("10")
+];
+
+function sliderDisp(){
+  $('<label for="fader">Gastric Acid</label>').appendTo("#control-overlay");
+  $('<input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="acidslider">').appendTo("#control-overlay")
+  $('<output for="fader" id="acid">5</output>').appendTo("#control-overlay");
+  $('<label for="meat"> Meat and Dairy</label>').appendTo("#control-overlay")
+  $('<input type="range" min="0" max="10" class="mrslider" value="5" id="meatslider" step="1"/>').appendTo('#control-overlay');
+  $('<output for="meat" id="meat">5</output>').appendTo('#control-overlay')
+  $('<label for="fader">Vegetables</label>').appendTo("#control-overlay")
+  $('<input type="range" class="mrslider" min="0" max="10" value="5" id="veggieslider" step="1">').appendTo("#control-overlay");
+  $('<output for="veggie" id="veggie">5</output>').appendTo("#control-overlay");
+}
+
+function butDisp(){
+$('<button class="upgrade1">Upgrade Nutrient Absorbtion (cost of 200)</button>').appendTo("#control-overlay");
+$('<button class="upgrade2">Upgrade Slider Capacity (cost of 200)<button>').appendTo("#control-overlay");
+}
+
+function overlayAdd(items){
+  var i;
+  for (i=0; i < items.length; i++){
+    items[i].appendTo("#control-overlay");
+  }
+}
+
+overlayAdd(gameDisp);
+sliderDisp();
+butDisp();
+} allDisp();
 
 console.log($("#score").text());
 
@@ -144,8 +254,8 @@ var pathPercent2Cart = function( percent ) {
 $('#acidslider').on("input", function(){ outputUpdate($('#acidslider').val(), '#acid')});
 $('#meatslider').on("input", function(){ outputUpdate($('#meatslider').val(), '#meat')});
 $('#veggieslider').on("input", function(){ outputUpdate($('#veggieslider').val(), '#veggie')});
-$('#carbsslider').on("input", function(){ outputUpdate($('#carbsslider').val(), '#carbs')});
-$('#vitaminslider').on("input", function(){ outputUpdate($('#vitaminslider').val(), '#vita')});
+/*$('#carbsslider').on("input", function(){ outputUpdate($('#carbsslider').val(), '#carbs')});
+$('#vitaminslider').on("input", function(){ outputUpdate($('#vitaminslider').val(), '#vita')}); */
 
 
 //(utility functions)
@@ -155,7 +265,7 @@ function randomizer (min, max){
 
 //game logic
 var masterArr = {
-  "nutrientNames": ["acid ", "meat", "veggie", "carbs", "vita"],
+  "nutrientNames": ["acid ", "meat", "veggie"],
   "bacteria": [],
   "food": [],
   "body": [],
@@ -222,7 +332,6 @@ function newScore(food){
 
 }
 
-//counter function, recursive
 // Avoid convoluted action chains like this abomination. A recursive function that switches a setInterval on/off?
 // Nononono. Oh god no. Always make sure the chain of activity ownership for your code is clear. See above for the main game loop. Function main.
 var digestion_counter = 4;
@@ -273,9 +382,7 @@ $(".upgrade2").click(function(){
     $(".upgrade2").text("Upgrade Slider Capacity (cost of " + baseUpCost + ")");
   }
 });
-  //var titleScreen = mainMenuRet().init();
 
-  //main menu;
   //placeholder block
   function optionAdd(id, titled, goesTo){
     $("<div>").addClass("option").text(titled).attr('id', id).appendTo(".mainopts");
@@ -285,7 +392,6 @@ $(".upgrade2").click(function(){
   };
 
   var titleScreen = function mainMenuRet(){
-    console.log(gameStart);
     function init(){
     //placeholder menu functions
       var newgame = function(){
