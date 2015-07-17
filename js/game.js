@@ -9,88 +9,21 @@
 
 /* On input change, Display output must change to reflect new values. */
 
-/*
-<!DOCTYPE html>
-<html>
-<head>
-<body>
-  <div id="header">GUT FEELING</div>
-  <div id="stage"></div>
-  <div id="footer">z0lly and duncan
-  </div>
-  <div id="control-overlay">
-    <!--Use the overlay we talked about, man. Inspect this div to see what I did.-->
-  <p id="curfood">Displays Current Food</p>
-  <p>Time left to prepare digestion:</p>
-  <p id="count">3<p>
-  <p>Nutrients (score):</p>
-  <p id="score">25</p>
-  <p>Nutrient Absorbtion Rate:</p>
-  <p id="rate">10</p>
-  <label for="fader">Gastric Acid</label>
-  <input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="acidslider">
-  <output for="fader" id="acid">5</output>
-  <br>
-  <label for="fader"> Meat and Dairy</label>
-  <input type="range" min="0" max="10" class="mrslider" value="5" id="meatslider" step="1">
-  <output for="meat" id="meat">5</output>
-  <br>
-  <label for="fader">Vegetables</label>
-  <input type="range" class="mrslider" min="0" max="10" value="5" id="veggieslider" step="1">
-  <output for="veggie" id="veggie">5</output>
-  <br>
-  <label for="fader">Carbohydrates</label>
-  <input type="range" class="mrslider" min="0" max="10" value="5" id="carbsslider" step="1">
-  <output for="carbs" id="carbs">5</output>
-  <br>
-  <label for="fader"> Vitamins</label>
-  <input type="range" class="mrslider" min="0" max="10" value="5" id="vitaminslider" step="1">
-  <output for="vita" id="vita">5</output>
-  <br>
-  <button class="upgrade1">Upgrade Nutrient Absorbtion (cost of 200)</button>
-  <button class="upgrade2">Upgrade Slider Capacity (cost of 200)<button>
-  </div>
-  <div id="loader">
-  </div>
-</body>
-</html>
-
-*/
 
 
-/*<div id="control-overlay">
-    <!--Use the overlay we talked about, man. Inspect this div to see what I did.-->
-  <p id="curfood">Displays Current Food</p>
-  <p>Time left to prepare digestion:</p>
-  <p id="count">3<p>
-  <p>Nutrients (score):</p>
-  <p id="score">25</p>
-  <p>Nutrient Absorbtion Rate:</p>
-  <p id="rate">10</p>*/
-
-
-$(function() {
-var gameStart = function gameStart() {
-  function init (){
-  $('body').removeClass('mainmenu');
-function outputUpdate(item, tag) {
-  $(tag).val(item);
-  var score = $("#score").text();
-  var newTotal = parseInt(score, 10) - 5; // Straight up, what. Every time you change your value you just decrement your scoretotal?
-  $("#score").text(newTotal);
-}
-
-
-/* This is our onload Initialization function, and will be our bootstrapper once we get better. */
+console.log(actionPanelUpdate);
 $(function() {
 
-function allDisp(){
-$("<div>").attr("id", "loader").appendTo("body");
-//$("<div>").attr("id", "control-overlay").appendTo("body"); //will need to make the sliders
+  function masterGameDisp(){
+  $("body").empty();
+  actionPanelUpdate();
+  $("body").toggleClass("mainmenu");
+  $("<div>").attr("id", "control-overlay").appendTo("body");
+  $("<div>").attr("id", "loader").appendTo("body");
+  $("<div>").attr("id", "control-overlay").appendTo("body");
 $("<header>").attr("id", "header").text("GUT FEELING").appendTo("body");
 $("<footer>").attr("id", "footer").text("z0lly and duncan").appendTo("body");
 $("<div>").attr("id", "stage").appendTo("body");
-$("<div>").attr("id", "control-overlay").appendTo("body");
 $("<div>").attr("id", "loader").appendTo("body");
 var gameDisp = [
   $("<button>").addClass("upgrade1"),
@@ -108,14 +41,13 @@ function sliderDisp(){
   $('<label for="fader">Gastric Acid</label>').appendTo("#control-overlay");
   $('<input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="acidslider">').appendTo("#control-overlay")
   $('<output for="fader" id="acid">5</output>').appendTo("#control-overlay");
-  $('<label for="meat"> Meat and Dairy</label>').appendTo("#control-overlay")
+  $('<label for="meat"> Meat</label>').appendTo("#control-overlay")
   $('<input type="range" min="0" max="10" class="mrslider" value="5" id="meatslider" step="1"/>').appendTo('#control-overlay');
   $('<output for="meat" id="meat">5</output>').appendTo('#control-overlay')
   $('<label for="fader">Vegetables</label>').appendTo("#control-overlay")
   $('<input type="range" class="mrslider" min="0" max="10" value="5" id="veggieslider" step="1">').appendTo("#control-overlay");
   $('<output for="veggie" id="veggie">5</output>').appendTo("#control-overlay");
-}
-
+  }
 function butDisp(){
 $('<button class="upgrade1">Upgrade Nutrient Absorbtion (cost of 200)</button>').appendTo("#control-overlay");
 $('<button class="upgrade2">Upgrade Slider Capacity (cost of 200)<button>').appendTo("#control-overlay");
@@ -131,7 +63,18 @@ function overlayAdd(items){
 overlayAdd(gameDisp);
 sliderDisp();
 butDisp();
-} allDisp();
+};
+
+
+var gameStart = function gameStart() {
+  //$('body').removeClass('mainmenu');
+function outputUpdate(item, tag) {
+  $(tag).val(item);
+  var score = $("#score").text();
+  var newTotal = parseInt(score, 10) - 5; // Straight up, what. Every time you change your value you just decrement your scoretotal?
+  $("#score").text(newTotal);
+}
+
 
 console.log($("#score").text());
 
@@ -160,7 +103,6 @@ var gastro_vertices = [
 var stageW;
 var stageH;
 
-$(function() {
 
   food_assets['c_wing'] = PIXI.Texture.fromImage('img/c_wing.gif');
   var tmp_ill_texture = PIXI.Texture.fromImage('img/ill_00.png');
@@ -209,17 +151,18 @@ $(function() {
     nibbles.push(omnom);
   });
 
-
-
-  requestAnimationFrame( animate );
-  setInterval( main, 30 );
-  countDown();
-});
-
-var animate = function() {
+  var animate = function() {
   requestAnimationFrame( animate );
   renderer.render(stage);
 };
+
+
+  requestAnimationFrame(animate);
+  setInterval( main, 30 );
+  countDown();
+
+
+
 
 var main = function() {
   nibbles.forEach(function(nibble){
@@ -254,9 +197,8 @@ var pathPercent2Cart = function( percent ) {
 $('#acidslider').on("input", function(){ outputUpdate($('#acidslider').val(), '#acid')});
 $('#meatslider').on("input", function(){ outputUpdate($('#meatslider').val(), '#meat')});
 $('#veggieslider').on("input", function(){ outputUpdate($('#veggieslider').val(), '#veggie')});
-/*$('#carbsslider').on("input", function(){ outputUpdate($('#carbsslider').val(), '#carbs')});
-$('#vitaminslider').on("input", function(){ outputUpdate($('#vitaminslider').val(), '#vita')}); */
-
+  upgradeLogic();
+}
 
 //(utility functions)
 function randomizer (min, max){
@@ -289,7 +231,7 @@ function AssetMake(kind, named, img, stats){
   masterArr[kind].push(this);
 }
 
-//values used for reduce constructor AssetMake
+
 var body = new AssetMake ("body", "Player Name", "body.jpg", [0,0,0,0,0,0]);
 masterArr.body = masterArr.body[0];
 // Get this junk in a json,xml,textfile,or something.
@@ -339,10 +281,10 @@ function countDown(){
   if ($("#score").text() <= -10){ // GameOver check should not depend only on direct player input. Maybe it belongs both places. Not sure.
       alert("you died of stomach illness!");
       $("body").empty();
-      $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead.");
+      $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead.").addClass("gameover");
       var gameOver = true;
        setTimeout(function(){
-        return titleScreen().init();
+        return titleScreen();
       }, 3500);
   }
   setTimeout(function() { // Making it a timeout just so I know it ALWAYS is calling countDown once first.
@@ -360,6 +302,7 @@ function countDown(){
 
 //every upgrade doubles the price of both itself and other upgrades of the same category.
 //Can use a universal class to update these when there are more.
+function upgradeLogic() {
 $(".upgrade1").click(function(){
   var curScore = parseInt($("#score").text());
   if (curScore > baseUpCost){ $("#score").text(parseInt($("#score").text()) - baseUpCost);
@@ -383,18 +326,27 @@ $(".upgrade2").click(function(){
   }
 });
 
-  //placeholder block
-  function optionAdd(id, titled, goesTo){
+}
+
+    function optionAdd(id, titled, goesTo){
     $("<div>").addClass("option").text(titled).attr('id', id).appendTo(".mainopts");
     $("#" + id).on("click", function(){
       goesTo();
     })
-  };
+   };
 
-  var titleScreen = function mainMenuRet(){
-    function init(){
-    //placeholder menu functions
-      var newgame = function(){
+  function titleScreen(){
+    $("body").empty();
+    $("<section>").addClass("mainopts").appendTo("body");
+      $("body").addClass("mainmenu");
+      $("<section>").addClass("title").appendTo("body");
+      $("<section>").addClass("mainopts").appendTo("body");
+      $("<h1>").addClass("titletext").appendTo(".title");
+      $(".titletext").text("Gut Feeling");
+      newGameAdd();
+  }
+function runopts(){
+  var newgame = function(){
         alert("This is where the new game would go, just saying");
       }
       var scenarios = function(){
@@ -406,32 +358,23 @@ $(".upgrade2").click(function(){
       var options = function(){
         alert("Sound on/off and High Scores");
       }
-      $("body").empty();
-      $("body").addClass("mainmenu");
-      $("<section>").addClass("title").appendTo("body");
-      $("<section>").addClass("mainopts").appendTo("body");
-      $("<h1>").addClass("titletext").appendTo(".title");
-      $(".titletext").text("Gut Feeling")
-      optionAdd("newgame", "New Game", gameStart().init);  //pass as function, without calling;
+    optionAdd("newgame", "New Game", masterGameDisp);  //pass as function, without calling;
       optionAdd("scenarios", "Scenarios", scenarios);
       optionAdd("credits", "Credits", credits);
       optionAdd("options", "Options", options);
-    }
-    return {
-      init: init
     };
-  }
+      titleScreen()
+  function newGameAdd(){
+    $("<div>").addClass("option").text("new game").addClass("newgame").appendTo(".mainopts");
+    $(".newgame").on("click", function(){
+        masterGameDisp();
+        gameStart();
+    });
+  };
 
+      //runopts()
 //quick and dirty defeat flag
-  var gameOver = true;
+  var gameOver = false;
   //countDown();
-
-});
-}
-  return {
-    init:init
-  }
-};
-gameStart().init();
 });
 

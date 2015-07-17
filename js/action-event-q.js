@@ -12,7 +12,7 @@ var ActionEventQ = function( args ) {
 	self.q = [];
 	self.triggered = [];
 	self.defaults = {
-		expiry: 15000,	
+		expiry: 15000,
 		callback: null,
 		style: {}
 	};
@@ -45,7 +45,7 @@ var ActionEventQ = function( args ) {
 		console.log ( this );
 		console.log( self );
 		var i, imax=obj.length;
-		
+
 		if ( self.defineEvent( obj ))
 		{
 			return true;
@@ -106,7 +106,7 @@ var ActionEventQ = function( args ) {
 	ActionEventOne.prototype.parent = self;
 }
 
-$(function() {
+var actionPanelUpdate = function() {
 	$("body").append('<div id="action-event-panel"></div>');
 	$.getJSON("js/test-actions.json", function(data, status, jqXHR) {
 		var aeq = new ActionEventQ({ selector: "#action-event-panel" });
@@ -117,4 +117,4 @@ $(function() {
 
 		aeq.processTriggers();
 	});
-});
+};
