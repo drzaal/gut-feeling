@@ -136,11 +136,11 @@ div {
   background: rgb(107,142,35);
   color: white;
   text-align: center;
-  opacity: .9;
+  opacity: .7;
   font-family: KarmaticArcade;
   position: fixed;
-  top: 75%;
   left: 50%;
+  top: 70%;
   padding-left: 10%;
   padding-right: 10%;
   transform: translate(-50%, -50%);
