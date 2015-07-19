@@ -18,13 +18,28 @@ function masterState() {   //not indenting additionally here
     $("body").empty();
     actionPanelUpdate(); //calls from action-event-q js file
     $("body").removeClass("mainmenu");
-    $("<div>").attr("id", "control-overlay").appendTo("body");
-    $("<div>").attr("id", "loader").appendTo("body");
-    $("<div>").attr("id", "control-overlay").appendTo("body");
-    $("<header>").attr("id", "header").text("GUT FEELING").appendTo("body");
-    $("<footer>").attr("id", "footer").text("z0lly and duncan").appendTo("body");
-    $("<div>").attr("id", "stage").appendTo("body");
-    $("<div>").attr("id", "loader").appendTo("body");
+
+    function bodyAdd(domEls){
+      var i;
+      for(i = 0; i < domEls.length; i++){
+        $(domEls[i].tag).attr("id", domEls[i].idTag).appendTo(domEls[i].appTo).text(domEls[i].dispText);
+      }
+    }
+
+    var domArr = [];
+    function addToDom (tag, idTag, appTo, dispText){
+      this.tag = tag;
+      this.idTag = idTag;
+      this.appTo = appTo;
+      this.dispText = dispText;
+      domArr.push(this);
+    }
+
+    var controlOverlay = new addToDom("<div>", "control-overlay", "body");
+    var header = new addToDom("<header>", "header", "body", "GUT FEELING");
+    var footer = new addToDom("<footer>", "footer", "body", "z0lly and duncan");
+    var stage = new addToDom("<div>", "stage", "body");
+    var loader = new addToDom("<div>", "loader", "body");
 
     var gameDisp = [
       $("<p>").attr("id", "curfood").text("food text here"),
@@ -45,7 +60,7 @@ function masterState() {   //not indenting additionally here
       $('<output for="meat" id="meat">5</output>').appendTo('#control-overlay');
       $('<label for="fader">Vegetables</label>').appendTo("#control-overlay");
       $('<input type="range" class="mrslider" min="0" max="10" value="5" id="veggieslider" step="1">').appendTo("#control-overlay");
-      $('<output for="veggie" id="veggie">5</output>').appendTo("#control-overlay");
+      $('<output for="veggie" id="veggie"> 5</output>').appendTo("#control-overlay");
     }
 
     function butDisp(){
@@ -60,7 +75,8 @@ function masterState() {   //not indenting additionally here
       }
     }
     //calling these interior functions to setup the game display/state
-    overlayAdd(gameDisp);
+    bodyAdd(domArr);  //append to body
+    overlayAdd(gameDisp); //append to control overlay
     sliderDisp();
     butDisp();
   } //masterGameDisp end
@@ -100,7 +116,6 @@ function masterState() {   //not indenting additionally here
     var stageW;
     var stageH;
 
-
     food_assets['c_wing'] = PIXI.Texture.fromImage('img/c_wing.gif');
     var tmp_ill_texture = PIXI.Texture.fromImage('img/ill_00.png');
     ill_assets['ecoli'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(0, 0, 256, 256));
@@ -113,7 +128,7 @@ function masterState() {   //not indenting additionally here
     renderer = PIXI.autoDetectRenderer(stageW, stageH, { transparent: true});
 
     $("#stage").append(renderer.view);
-
+    //is scale established here, or is it not needed?
     var corpus_primus = new PIXI.Sprite(PIXI.Texture.fromImage('img/body.png'));
     corpus_primus.width = corpus_primus.width * stageH * 0.85 / corpus_primus.height;
     corpus_primus.height = stageH * 0.85;
@@ -185,6 +200,7 @@ function masterState() {   //not indenting additionally here
 
 
     //tracking three main values, per future triangle design
+    //these could be migrated to gameLogic, then called within it.
     function sliderLogic() {
       $('#acidslider').on("input", function(){
           outputUpdate($('#acidslider').val(), '#acid');
@@ -197,6 +213,8 @@ function masterState() {   //not indenting additionally here
       });
     }
     function upgradeLogic() {
+      var baseUpCost = 200;
+      var baseAbsorb = 10;
       $(".upgrade1").click(function(){
         var curScore = parseInt($("#score").text());
         if (curScore > baseUpCost){
@@ -253,16 +271,12 @@ function masterState() {   //not indenting additionally here
         masterArr[kind].push(this);
       }
 
-
       masterArr.body = masterArr.body[0];
       // Get this junk in a json,xml,textfile,or something.
       var gCheese = new AssetMake("food", "Grilled Cheese", "gcheese.jpg", [5,1,1]);
       var pie = new AssetMake ("food", "Apple Pie", "apie.jpg", [1,1,1]);
       var pizza = new AssetMake ("food", "Pizza", "pizza.jpg", [1,1,5]);
       //values used for upgrades and state
-      var baseAbsorb = 10;
-      var baseUpCost = 200;
-
       var foodVals = ["acid", "meat", "veggie"];
 
      // If you're reliant on the index, DO NOT USE A FOREACH. Use a true for loop.
@@ -289,8 +303,10 @@ function masterState() {   //not indenting additionally here
       }
       //TODO: refactor this into subfunctions
       var digestion_counter = 4;
+      var gameover = false;
       function countDown(){
         if ($("#score").text() <= -10){ //can put gameover check in other places as well
+            gameover = true;
             alert("you died of stomach illness!");
             $("body").empty();
             $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead.").addClass("gameover");
@@ -300,13 +316,16 @@ function masterState() {   //not indenting additionally here
         }
         setTimeout(function() { // Making it a timeout just so I know it ALWAYS is calling countDown once first.
           digestion_counter--;
-          if (digestion_counter === 0) {
+          console.log(digestion_counter);
+          if (digestion_counter === 0 && !gameover) {
           digestion_counter = 4;
             var randomFood = masterArr.food[randomizer(0, masterArr.food.length-1)];
             $("#curfood").text(randomFood.named);
             newScore(randomFood);
+          } else if(gameover) {  //ends loop if gameover is true
+            return;
           }
-          $("#count").text(digestion_counter); // No sense in the conditional.
+           $("#count").text(digestion_counter);
           countDown();
         }, 1000);
       }
@@ -347,7 +366,7 @@ function masterState() {   //not indenting additionally here
       "titleScreen": titleScreen
       /*We can add and cleanup as needed with this pattern. So, something like...
       "masterGameDisp": masterGameDisp */
-    }
+    };
 
 } //end of masterInit function. Can talk about the preferred indenting, but everything's already nested once for .ready and things will be moved out of it next refactor.
   //masterState called to start program
