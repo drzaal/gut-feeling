@@ -131,5 +131,5 @@ var scorer = function(){
 	}
 
 var titleScreen = mainMenuRet();
-titleScreen.init()
+titleScreen.init();
 }); //document ready end

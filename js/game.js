@@ -12,8 +12,43 @@
 
 
 $(function() {
-function masterState() {   //not indenting additionally here
+  var masterArr = {
+        "nutrientNames": ["acid ", "meat", "veggie"],
+        "bacteria": [],
+        "food": [],
+        "body": [],
+        "eatenFood": []
+      };
+           //Uses reduce to collate two arrays into an object
+      function objPropper(keysArr, valsArr, objAdded){
+        keysArr.reduce(function(obj, key, i){
+            objAdded[key] = valsArr[i];
+          }, objAdded);
+          return objAdded;
+      }
 
+      //Asset constructor works for foods and bacteria
+      function AssetMake(kind, named, img, stats){
+        this.kind = kind;
+        this.named = named;
+        this.img = img;
+        this.stats = objPropper(masterArr.nutrientNames, stats, {});
+        masterArr[kind].push(this);
+      }
+
+  $.getJSON("js/newfoods.json", function (data, status){
+    console.log("got it", data)
+          data.foods.forEach(function(item){
+            new AssetMake (item.kind, item.named, item.img, item.nutrients);
+          })
+          console.log("done", masterArr);
+          masterState().titleScreen();
+      })
+function masterState() {   //not indenting additionally here
+      //pseudo-globals corresponding to upgradeLogic
+      var baseUpCost = 200;
+      var baseAbsorb = 10;
+      var upgradeModifier = 2;
   function masterGameDisp(){
     $("body").empty();
     actionPanelUpdate(); //calls from action-event-q js file
@@ -52,9 +87,9 @@ function masterState() {   //not indenting additionally here
     ];
 
     function sliderDisp(){
-      $('<label for="fader">Gastric Acid</label>').appendTo("#control-overlay");
-      $('<input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="acidslider">').appendTo("#control-overlay");
-      $('<output for="fader" id="acid">5</output>').appendTo("#control-overlay");
+      $('<label id= "acidlabel">Gastric Acid</label>').appendTo("#control-overlay");
+      $('<input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="acidslider">').appendTo("#acidlabel");
+      $('<output id="acid">5</output>').appendTo("#acidlabel");
       $('<label for="meat"> Meat</label>').appendTo("#control-overlay");
       $('<input type="range" min="0" max="10" class="mrslider" value="5" id="meatslider" step="1"/>').appendTo('#control-overlay');
       $('<output for="meat" id="meat">5</output>').appendTo('#control-overlay');
@@ -84,6 +119,7 @@ function masterState() {   //not indenting additionally here
 
   //TODO: seperate animation within gameStart function
   var gameStart = function gameStart() {
+    masterGameDisp();
     function outputUpdate(item, tag) {
       $(tag).val(item);
       var score = $("#score").text();
@@ -143,8 +179,7 @@ function masterState() {   //not indenting additionally here
       var omnom;
     	if (new Date() & 2) {
         omnom = new PIXI.Sprite(ill_assets['ecoli']);
-    	}
-    	else {
+    	} else {
         omnom = new PIXI.Sprite(ill_assets['stephalo']);
     	}
     	omnom.width = 64;
@@ -191,10 +226,10 @@ function masterState() {   //not indenting additionally here
       var lite_post_id;
       if (percent < 100) {
         lite_post_id = Math.floor( percent/100 * gastro_vertices.length );
+      } else {
+        lite_post_id = gastro_vertices.length - 1;
       }
-      else { lite_post_id = gastro_vertices.length - 1; }
         lite_post = gastro_vertices[ lite_post_id ];
-
       return {'x': lite_post[0], 'y': lite_post[1]};
     };
 
@@ -212,15 +247,14 @@ function masterState() {   //not indenting additionally here
         outputUpdate($('#veggieslider').val(), '#veggie');
       });
     }
+
     function upgradeLogic() {
-      var baseUpCost = 200;
-      var baseAbsorb = 10;
       $(".upgrade1").click(function(){
         var curScore = parseInt($("#score").text());
         if (curScore > baseUpCost){
           $("#score").text(parseInt($("#score").text()) - baseUpCost);
           baseAbsorb += 5;
-          baseUpCost = (baseUpCost * 2);
+          baseUpCost = (baseUpCost * upgradeModifier);
           $("#rate").text(baseAbsorb);
           $(".upgrade1").text("Upgrade Nutrient Absorbtion (cost of " + baseUpCost + ")");
           $(".upgrade2").text("Upgrade Slider Capacity (cost of " + baseUpCost + ")");
@@ -246,38 +280,25 @@ function masterState() {   //not indenting additionally here
       }
 
       //game logic
-      var masterArr = {
-        "nutrientNames": ["acid ", "meat", "veggie"],
-        "bacteria": [],
-        "food": [],
-        "body": [],
-        "eatenFood": []
-      };
 
-      //Uses reduce to collate two arrays into an object
-      function objPropper(keysArr, valsArr, objAdded){
-        keysArr.reduce(function(obj, key, i){
-            objAdded[key] = valsArr[i];
-          }, objAdded);
-          return objAdded;
-      }
-
-      //Asset constructor works for foods and bacteria
-      function AssetMake(kind, named, img, stats){
-        this.kind = kind;
-        this.named = named;
-        this.img = img;
-        this.stats = objPropper(masterArr.nutrientNames, stats, {});
-        masterArr[kind].push(this);
-      }
 
       masterArr.body = masterArr.body[0];
       // Get this junk in a json,xml,textfile,or something.
-      var gCheese = new AssetMake("food", "Grilled Cheese", "gcheese.jpg", [5,1,1]);
-      var pie = new AssetMake ("food", "Apple Pie", "apie.jpg", [1,1,1]);
-      var pizza = new AssetMake ("food", "Pizza", "pizza.jpg", [1,1,5]);
+      /*var gCheese = new AssetMake("food", "Grilled Cheese", "gcheese.jpg", [5,1,1]);
+      var pizza = new AssetMake ("food", "Pizza", "pizza.jpg", [1,1,5]); */
       //values used for upgrades and state
       var foodVals = ["acid", "meat", "veggie"];
+      /*var actionPanelUpdate = function() {
+      $("body").append('<div id="action-event-panel"></div>');
+      $.getJSON("js/test-actions.json", function(data, status, jqXHR) {
+      var aeq = new ActionEventQ({ selector: "#action-event-panel" });
+      aeq.loadDef( data );
+      aeq.triggerEvent(0);
+      aeq.triggerEvent(2);
+      aeq.processTriggers();
+  });
+}; */
+
 
      // If you're reliant on the index, DO NOT USE A FOREACH. Use a true for loop.
       function newScore(food){
@@ -349,8 +370,7 @@ function masterState() {   //not indenting additionally here
       function optControl(){
         $("<div>").addClass("option").text("new game").addClass("newgame").appendTo(".mainopts");
         $(".newgame").on("click", function(){
-                masterGameDisp();
-                gameStart();
+                                masterState().gameStart();
             });
         $("<div>").addClass("option").text("credits").addClass("credits").appendTo(".mainopts");
         $(".credits").on("click", function(){
@@ -370,5 +390,4 @@ function masterState() {   //not indenting additionally here
 
 } //end of masterInit function. Can talk about the preferred indenting, but everything's already nested once for .ready and things will be moved out of it next refactor.
   //masterState called to start program
-  masterState().titleScreen();
 }); //$(document).ready end
