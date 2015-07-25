@@ -4,13 +4,31 @@
 			"kind": "food",
 			"named": "Grilled Cheese",
 			"img": "gcheese.jpg",
-			"nutrients": [5, 1, 1]
+			"triangle": [5, 1, 1]
 		},
 		{
 			"kind": "food",
 			"named": "Apple Pie",
 			"img": "apie.jpg",
-			"nutrients": [1,1,1]
+			"triangle": [1,1,1]
+		},
+		{
+			"kind": "food",
+			"named": "Pizza",
+			"img": "pizza.jpg",
+			"triangle": [2,2,2]
+		},
+		{
+			"kind": "food",
+			"named": "Tripe",
+			"img": "tripe.jpg",
+			"triangle": [3,4,1]
+		},
+		{
+			"kind": "food",
+			"named": "Shellfish",
+			"img": "shellfish.jpg",
+			"triangle": [3,3,8]
 		}
 	]
 }
