@@ -14,9 +14,10 @@ var config = { // Put all of our modifiable constants right here. Might save us 
 	"ads" : false
 };
 var masterArr = {
-	"nutrientNames": ["acid ", "meat", "veggie"],
+	"triangle": ["digestiontime ", "nutrientabsorb", "immunestrength"],
 	"bacteria": [],
 	"food": [],
+	"modifier": [],
 	"body": [],
 	"eatenFood": []
 };
@@ -82,15 +83,17 @@ function Game() {
     ];
 
     function sliderDisp(){
-      $('<label id= "acidlabel">Gastric Acid</label>').appendTo("#control-overlay");
-      $('<input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="acidslider">').appendTo("#acidlabel");
-      $('<output id="acid">5</output>').appendTo("#acidlabel");
-      $('<label for="meat"> Meat</label>').appendTo("#control-overlay");
-      $('<input type="range" min="0" max="10" class="mrslider" value="5" id="meatslider" step="1"/>').appendTo('#control-overlay');
-      $('<output for="meat" id="meat">5</output>').appendTo('#control-overlay');
-      $('<label for="fader">Vegetables</label>').appendTo("#control-overlay");
-      $('<input type="range" class="mrslider" min="0" max="10" value="5" id="veggieslider" step="1">').appendTo("#control-overlay");
-      $('<output for="veggie" id="veggie"> 5</output>').appendTo("#control-overlay");
+      $('<label id= "digestiontimelabel">digestiontime</label>').appendTo("#control-overlay");
+      $('<input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="digestiontimeslider">').appendTo("#digestiontimelabel");
+      $('<output id="digestiontime">5</output>').appendTo("#digestiontimelabel");
+
+      $('<label for="nutrientabsorblabel"> nutrientabsorb</label>').appendTo("#control-overlay");
+      $('<input type="range" min="0" max="10" class="mrslider" value="5" id="nutrientabsorbslider" step="1"/>').appendTo('#control-overlay');
+      $('<output for="nutrientabsorb" id="nutrientabsorb">5</output>').appendTo('#control-overlay');
+
+      $('<label for="immunestrength">immunestrength</label>').appendTo("#control-overlay");
+      $('<input type="range" class="mrslider" min="0" max="10" value="5" id="immunestrengthslider" step="1">').appendTo("#control-overlay");
+      $('<output for="immunestrength" id="immunestrength"> 5</output>').appendTo("#control-overlay");
     }
 
     function butDisp(){
@@ -226,14 +229,14 @@ function Game() {
     //tracking three main values, per future triangle design
     //these could be migrated to gameLogic, then called within it.
     function sliderLogic() {
-      $('#acidslider').on("input", function(){
-          outputUpdate($('#acidslider').val(), '#acid');
+      $('#digestiontimeslider').on("input", function(){
+          outputUpdate($('#digestiontimeslider').val(), '#digestiontime');
       });
-      $('#meatslider').on("input", function(){
-        outputUpdate($('#meatslider').val(), '#meat');
+      $('#nutrientabsorbslider').on("input", function(){
+        outputUpdate($('#nutrientabsorbslider').val(), '#nutrientabsorb');
       });
-      $('#veggieslider').on("input", function(){
-        outputUpdate($('#veggieslider').val(), '#veggie');
+      $('#immunestrengthslider').on("input", function(){
+        outputUpdate($('#immunestrengthslider').val(), '#immunestrength');
       });
     }
 
@@ -276,7 +279,7 @@ function Game() {
       /*var gCheese = new AssetMake("food", "Grilled Cheese", "gcheese.jpg", [5,1,1]);
       var pizza = new AssetMake ("food", "Pizza", "pizza.jpg", [1,1,5]); */
       //values used for upgrades and state
-      var foodVals = ["acid", "meat", "veggie"];
+      var foodVals = ["digestiontime", "nutrientabsorb", "immunestrength"];
       /*var actionPanelUpdate = function() {
       $("body").append('<div id="action-event-panel"></div>');
       $.getJSON("js/test-actions.json", function(data, status, jqXHR) {
@@ -289,28 +292,22 @@ function Game() {
 }; */
 
 
-     // If you're reliant on the index, DO NOT USE A FOREACH. Use a true for loop.
-      function newScore(food){
+      function newScore(food, mod){
+          console.log(food);
+          console.log(mod);
         var newArr = [];
-        var foodkeys = Object.keys(food.stats);
-        foodkeys.forEach(function(item){
+        var foodNums = food.triangle;
+        console.log(foodNums);
+        var modVals = mod.triangle;
+        masterArr.triangle.forEach(function(item){
         var select = newArr.push($("#" + item).text());
         });
-        newArr.forEach(function(item, index){
-          item = parseInt(item);
-        // Whatever you are doing here is complete nonsense. Try to break down what behavior you actually want, and make it clear here.
-          var newTotal = (item) - food.stats[masterArr.nutrientNames[index]];
-          //there's a problem with index not synching up and returning an undefined at the beginning of the array.
-          //it can be monkey patched better than this, but I'd rather know why it's happening.
-          if(!isNaN(item) && item !== undefined){
-            var points = Math.abs(newTotal) - 10;
-            var finalist = Math.abs(points);
-            $("#score").text(parseInt($("#score").text()) + finalist);
-          }
-
-        });
-
+         $("#score").text(parseInt($("#score").text()) + 5);
+        /*var finalVals = food.stats.map(function(item, i){
+            return item * modVals[i]
+         })*/
       }
+
       //TODO: refactor this into subfunctions
       var digestion_counter = 4;
       var gameover = false;
@@ -328,9 +325,12 @@ function Game() {
           digestion_counter--;
           if (digestion_counter === 0 && !gameover) {
           digestion_counter = 4;
+          console.log
+          var randomMod = masterArr.modifier[randomizer(0, masterArr.modifier.length-1)];
             var randomFood = masterArr.food[randomizer(0, masterArr.food.length-1)];
-            $("#curfood").text(randomFood.named);
-            newScore(randomFood);
+            console.log("randomFood" + randomFood);
+            $("#curfood").text(randomMod.named + " " + randomFood.named);
+            newScore(randomFood, randomMod);
           } else if(gameover) {  //ends loop if gameover is true
             return;
           }
@@ -357,7 +357,7 @@ function Game() {
       $(".titletext").text("Gut Feeling");
 
         $("<div>").addClass("option").text("new game").addClass("newgame").appendTo(".mainopts");
-        $(".newgame").click( self.gameStart() );
+        $(".newgame").click( self.gameStart );
         $("<div>").addClass("option").text("credits").addClass("credits").appendTo(".mainopts");
         $(".credits").on("click", function(){
               alert("Zaal and Duncan made this, please hold your applause");
@@ -379,23 +379,34 @@ $(function() {
       }
 
       //Asset constructor works for foods and bacteria
-      function AssetMake(kind, named, img, stats){
+      function AssetMake(kind, named, img, triangle){
         this.kind = kind;
         this.named = named;
         this.img = img;
-        this.stats = objPropper(masterArr.nutrientNames, stats, {});
+        this.triangle = triangle;
+        /*this.stats = objPropper(masterArr.triangle, stats, {}); */
         masterArr[kind].push(this);
       }
 
-  $.getJSON("js/newfoods.json", function (data, status){
-    console.log("got it", data)
-          data.foods.forEach(function(item){
-            new AssetMake (item.kind, item.named, item.img, item.nutrients);
+  function getJSONS(){
+    $.getJSON("js/newfoods.json", function (data, status){
+      console.log("got it newfoods", data)
+            data.foods.forEach(function(item){
+              new AssetMake (item.kind, item.named, item.img, item.triangle);
+            })
+            console.log("done", masterArr);
+    })
+    $.getJSON("js/foodmod.json", function (data, status){
+      console.log("got it foodmod", data)
+          data.foodMods.forEach(function(item){
+            new AssetMake (item.kind, item.named, item.img, item.triangle);
           })
           console.log("done", masterArr);
-		  var game = new Game();
-          game.titleScreen();
-      })
+    })
+  }
+  getJSONS();
+	var game = new Game();
+	game.titleScreen();
 //end of masterInit function. Can talk about the preferred indenting, but everything's already nested once for .ready and things will be moved out of it next refactor.
   //Game called to start program
 }); //$(document).ready end
