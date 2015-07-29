@@ -9,46 +9,41 @@
   C) Breakup the countdown function so it's not doing rules and state duties.
 
 */
+var config = { // Put all of our modifiable constants right here. Might save us some worry. Move this to a config file later.
+	"nutrientNames" : ["acid ", "meat", "veggie"],
+	"ads" : false
+};
+var masterArr = {
+	"nutrientNames": ["acid ", "meat", "veggie"],
+	"bacteria": [],
+	"food": [],
+	"body": [],
+	"eatenFood": []
+};
 
-
-$(function() {
-  var masterArr = {
-        "nutrientNames": ["acid ", "meat", "veggie"],
-        "bacteria": [],
-        "food": [],
-        "body": [],
-        "eatenFood": []
-      };
-           //Uses reduce to collate two arrays into an object
-      function objPropper(keysArr, valsArr, objAdded){
-        keysArr.reduce(function(obj, key, i){
-            objAdded[key] = valsArr[i];
-          }, objAdded);
-          return objAdded;
-      }
-
-      //Asset constructor works for foods and bacteria
-      function AssetMake(kind, named, img, stats){
-        this.kind = kind;
-        this.named = named;
-        this.img = img;
-        this.stats = objPropper(masterArr.nutrientNames, stats, {});
-        masterArr[kind].push(this);
-      }
-
-  $.getJSON("js/newfoods.json", function (data, status){
-    console.log("got it", data)
-          data.foods.forEach(function(item){
-            new AssetMake (item.kind, item.named, item.img, item.nutrients);
-          })
-          console.log("done", masterArr);
-          masterState().titleScreen();
-      })
-function masterState() {   //not indenting additionally here
+/**
+ Master game State Object.
+ */
+function Game() {
+	var self = this;
+	this.stomach = new Stomach();
+   //not indenting additionally here
       //pseudo-globals corresponding to upgradeLogic
       var baseUpCost = 200;
       var baseAbsorb = 10;
       var upgradeModifier = 2;
+
+    self.main = function() {
+	  self.tri_controller.update();
+      self.nibbles.forEach(function(nibble){
+        nibble.path_percent += 0.2;
+        var path_bias = pathPercent2Cart( nibble.path_percent );
+        nibble.x += (path_bias.x - nibble.x) / 20;
+        nibble.y += (path_bias.y - nibble.y) / 20;
+        nibble.rotation += 0.1;
+      });
+    };
+
   function masterGameDisp(){
     $("body").empty();
     actionPanelUpdate(); //calls from action-event-q js file
@@ -118,7 +113,7 @@ function masterState() {   //not indenting additionally here
 
 
   //TODO: seperate animation within gameStart function
-  var gameStart = function gameStart() {
+  self.gameStart = function() {
     masterGameDisp();
     function outputUpdate(item, tag) {
       $(tag).val(item);
@@ -128,10 +123,10 @@ function masterState() {   //not indenting additionally here
     }
 
     var stage;
-    var nibbles = [];
-    var food_assets = {};
-    var ill_assets = {};
-    var gastro_vertices = [
+    self.nibbles = [];
+    self.food_assets = {};
+    self.ill_assets = {};
+    self.gastro_vertices = [
       [200, 5],
       [200, 25],
       [150, 45],
@@ -152,10 +147,10 @@ function masterState() {   //not indenting additionally here
     var stageW;
     var stageH;
 
-    food_assets['c_wing'] = PIXI.Texture.fromImage('img/c_wing.gif');
+    self.food_assets['c_wing'] = PIXI.Texture.fromImage('img/c_wing.gif');
     var tmp_ill_texture = PIXI.Texture.fromImage('img/ill_00.png');
-    ill_assets['ecoli'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(0, 0, 256, 256));
-    ill_assets['stephalo'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(256, 0, 256, 256));
+    self.ill_assets['ecoli'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(0, 0, 256, 256));
+    self.ill_assets['stephalo'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(256, 0, 256, 256));
 
     stageW = $("#stage").width();
     stageH = $("#stage").height();
@@ -198,23 +193,17 @@ function masterState() {   //not indenting additionally here
       nibbles.push(omnom);
     });
 
+	self.tri_controller = new Tricontroller({ "parent" : $("#control-overlay") });
+
     var animate = function() {
-    requestAnimationFrame( animate );
-    renderer.render(stage);
+		requestAnimationFrame( animate );
+		renderer.render(stage);
     };
 
     requestAnimationFrame(animate);
-    setInterval( main, 30 );
+    setInterval( self.main, 30 );
+	console.log("We should have set this already?");
 
-    var main = function() {
-      nibbles.forEach(function(nibble){
-        nibble.path_percent += 0.2;
-        var path_bias = pathPercent2Cart( nibble.path_percent );
-        nibble.x += (path_bias.x - nibble.x) / 20;
-        nibble.y += (path_bias.y - nibble.y) / 20;
-        nibble.rotation += 0.1;
-      });
-    };
 
   /*
    * Converts a given percentage to a coordinate along a bounded vertex-defined linear path.
@@ -291,7 +280,7 @@ function masterState() {   //not indenting additionally here
       /*var actionPanelUpdate = function() {
       $("body").append('<div id="action-event-panel"></div>');
       $.getJSON("js/test-actions.json", function(data, status, jqXHR) {
-      var aeq = new ActionEventQ({ selector: "#action-event-panel" });
+      var aeq = new ActionEventQ({ selector: "#action-event-panel", multiple: true });
       aeq.loadDef( data );
       aeq.triggerEvent(0);
       aeq.triggerEvent(2);
@@ -332,12 +321,11 @@ function masterState() {   //not indenting additionally here
             $("body").empty();
             $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead.").addClass("gameover");
             setTimeout(function(){
-              return titleScreen();
+              return self.titleScreen();
             }, 3500);
         }
         setTimeout(function() { // Making it a timeout just so I know it ALWAYS is calling countDown once first.
           digestion_counter--;
-          console.log(digestion_counter);
           if (digestion_counter === 0 && !gameover) {
           digestion_counter = 4;
             var randomFood = masterArr.food[randomizer(0, masterArr.food.length-1)];
@@ -359,7 +347,7 @@ function masterState() {   //not indenting additionally here
     upgradeLogic();
   }; //gamestart end
 
-    function titleScreen(){
+    self.titleScreen = function(){
       $("body").empty();
       $("<section>").addClass("mainopts").appendTo("body");
       $("body").addClass("mainmenu");
@@ -367,27 +355,47 @@ function masterState() {   //not indenting additionally here
       $("<section>").addClass("mainopts").appendTo("body");
       $("<h1>").addClass("titletext").appendTo(".title");
       $(".titletext").text("Gut Feeling");
-      function optControl(){
+
         $("<div>").addClass("option").text("new game").addClass("newgame").appendTo(".mainopts");
-        $(".newgame").on("click", function(){
-                                masterState().gameStart();
-            });
+        $(".newgame").click( self.gameStart() );
         $("<div>").addClass("option").text("credits").addClass("credits").appendTo(".mainopts");
         $(".credits").on("click", function(){
               alert("Zaal and Duncan made this, please hold your applause");
           });
-        }
-      optControl();
+
     }
 
-  //masterInit module revealer return.
-    return {
-      "gameStart": gameStart,
-      "titleScreen": titleScreen
-      /*We can add and cleanup as needed with this pattern. So, something like...
-      "masterGameDisp": masterGameDisp */
-    };
+}
 
-} //end of masterInit function. Can talk about the preferred indenting, but everything's already nested once for .ready and things will be moved out of it next refactor.
-  //masterState called to start program
+
+
+$(function() {
+           //Uses reduce to collate two arrays into an object
+      function objPropper(keysArr, valsArr, objAdded){
+        keysArr.reduce(function(obj, key, i){
+            objAdded[key] = valsArr[i];
+          }, objAdded);
+          return objAdded;
+      }
+
+      //Asset constructor works for foods and bacteria
+      function AssetMake(kind, named, img, stats){
+        this.kind = kind;
+        this.named = named;
+        this.img = img;
+        this.stats = objPropper(masterArr.nutrientNames, stats, {});
+        masterArr[kind].push(this);
+      }
+
+  $.getJSON("js/newfoods.json", function (data, status){
+    console.log("got it", data)
+          data.foods.forEach(function(item){
+            new AssetMake (item.kind, item.named, item.img, item.nutrients);
+          })
+          console.log("done", masterArr);
+		  var game = new Game();
+          game.titleScreen();
+      })
+//end of masterInit function. Can talk about the preferred indenting, but everything's already nested once for .ready and things will be moved out of it next refactor.
+  //Game called to start program
 }); //$(document).ready end

@@ -166,3 +166,19 @@ div {
   color: white;
 }
 
+/* Tripicker control */
+.ui-control-tripicker {
+	background: url('/img/tricolor.png');
+	width: 256px;
+	height: 208px;
+	background-position-y: -48px;
+	text-align: left;
+}
+.ui-control-tripicker-knob {
+	background: url('/img/tricolor.png');
+	width: 43px;
+	height: 44px;
+	display: inline-block;
+	background-position: 0 0;
+	position: relative;
+}

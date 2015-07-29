@@ -7,6 +7,9 @@
  */
 
 var ActionEventQ = function( args ) {
+	if ( args === undefined ) {
+		args = {};
+	}
 	var self = this;
 	self.action_def = [];
 	self.q = [];
@@ -16,7 +19,9 @@ var ActionEventQ = function( args ) {
 		callback: null,
 		style: {}
 	};
-	self.html = $(args.selector) || $("body");
+	self.multiple = args.multiple ? true : false;
+	self.html = args.html || $(args.selector) || $("body");
+	self.tween = args.tween || "bottom_feed";
 
 	/* This is its own thing because we want it to respond to user input and clicks.*/
 	self.triggerEvent = function ( weight ) {
@@ -26,7 +31,13 @@ var ActionEventQ = function( args ) {
 	self.processTriggers = function ( trigger ) {
 		self.triggered.forEach(function(a) {
 			var tmp_action = new ActionEventOne( self, a );
-			self.q.push( tmp_action );
+			if (self.multiple) {
+				self.q.push( tmp_action );
+			}
+			else {
+				if (self.q.length > 0) { self.q[0].close(); }
+				self.q = [ tmp_action ];	
+			}
 			self.html.append( tmp_action.view );
 			
 		});
@@ -63,19 +74,32 @@ var ActionEventQ = function( args ) {
 		for (i=imax-1;i>=0;i--) {
 			self.q[i].expiry -= delta;
 			if (self.q[i].expiry <= 0) {
-				self.q[i].action( self.q[i].default_callback );
+				
+				self.q[i].resolve_action( self.q[i].default_callback );
+				self.q[i].close();
 			}
 			
 		}
 	}
 	/* Define the Individual action event data object. This should make life easier to handle */
 	var ActionEventOne = function( parent, args ) {
+		if (!args) {
+			args = {};
+		}
 		var self = this;
 		self.parent = parent;
 		self.title = args.title ? args.title : "";
 		self.descr = args.descr ? args.descr : "";
 		self.expiry = args.expiry || self.parent.defaults.expiry; // How long our action event lasts.
 		self.actions = args.actions || []; // An action probably should have a text descriptor and a callback
+
+		// Processing the default action. Quite frankly, I can't know if they're going to give me an ID for
+		// a related action, or the actual callback. Not trusting them, haha.
+		self.default_action = args.default_action || null;
+		if ( self.default_action == 0 + self.default_action && self.default_action < self.actions.length && self.default_action >= 0 ) {
+			self.default_action = self.actions[self.default_action];
+		}
+		self.data = args.data || null;
 		self.html = null;
 
 		self.view = function(){
@@ -94,14 +118,21 @@ var ActionEventQ = function( args ) {
 			self.html = elmt;
 			return elmt;
 		};
-		self.resolve_action = function ( callback, args ) {
-			if (callback) {
-				callback();
-			}
+		self.close = function() {
 			self.html.remove(); // This is a bit abrupt, should tween the object when destroying.
 			self.html = null;
 			self.actions = null;
 			self = null;
+		}
+		self.resolve_action = function ( callback, args ) {
+			if (callback) {
+				if ( self.data ) {
+					callback( data );
+				}
+				else {
+					callback();
+				}
+			}
 		}
 	};
 }
