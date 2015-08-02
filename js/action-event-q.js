@@ -48,7 +48,6 @@ var ActionEventQ = function( args ) {
 		{
 			return false;
 		}
-
 		self.action_def.push( obj );
 
 	};

@@ -16,17 +16,19 @@ div {
 }
 
 #header{
-  position: relative;
+  background: url("/img/banner.png");
+  position: fixed;
   margin-left: auto;
   margin-right: auto;
+  left: 0;
+  right: 0;
   top: 0px;
-  height: 100px;
+  height: 152px;
   width: 600px;
-  background-color: rgb(107,142,35);
 }
 #stage{
   top: 150px;
-  margin: -100px auto -100px auto;
+  margin: 0px auto -100px auto;
   min-height: 100%;
 }
 #footer{
@@ -43,8 +45,6 @@ div {
   left: 0%;
   bottom: 20%;
   right: auto;
-  background: rgb(107,142,35);
-  color: white;
   margin: 0;
   clear: both;
   opacity: .9;
@@ -63,6 +63,18 @@ div {
 }
 /* HANDLING ACTION EVENTS */
 
+@keyframes slide_down {
+	from { margin-bottom: 100%; opacity: 0; }
+	to { margin-top: 0; opacity: 1; }
+}
+@-moz-keyframes slide_down, @-moz-keyframes slide_down {
+	from { margin-bottom: 100%; opacity: 0; }
+	to { margin-top: 0; opacity: 1; }
+}
+@-webkit-keyframes slide_down {
+	from { margin-top: 100%; opacity: 0; }
+	to { margin-top: 0; opacity: 1; }
+}
 @keyframes slide_up {
 	from { margin-top: 100%; opacity: 0; }
 	to { margin-top: 0; opacity: 1; }
@@ -86,6 +98,28 @@ div {
 @-webkit-keyframes fade_out {
 	from { opacity: 1; }
 	to { opacity: 0; }
+}
+#health {
+  background: rgb(107,142,35);
+  color: white;
+}
+.food-pane {
+  background: rgb(107,142,35);
+  color: white;
+	animation-name: slide_down;
+	animation-duration: 0.75s;
+	-moz-animation-name: slide_down;
+	-moz-animation-duration: 0.75s;
+	-webkit-animation-name: slide_down;
+	-webkit-animation-duration: 0.75s;
+}
+.food-pane.deleted {
+	animation-name: fade_out;
+	animation-duration: 0.75s;
+	-moz-animation-name: fade_out;
+	-moz-animation-duration: 0.75s;
+	-webkit-animation-name: fade_out;
+	-webkit-animation-duration: 0.75s;
 }
 .action-event-pane {
 	animation-name: slide_up;

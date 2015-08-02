@@ -13,6 +13,7 @@ var config = { // Put all of our modifiable constants right here. Might save us 
 	"nutrientNames" : ["acid ", "meat", "veggie"],
 	"ads" : false
 };
+var game;
 var masterArr = {
 	"triangle": ["digestiontime ", "nutrientabsorb", "immunestrength"],
 	"bacteria": [],
@@ -21,6 +22,11 @@ var masterArr = {
 	"body": [],
 	"eatenFood": []
 };
+
+var tmpl_html = [];
+$.get("/view/control_column.txt", function(data){ tmpl_html.control_column = data; });
+$.get("/view/body.txt", function(data){ tmpl_html.body = data; });
+$.get("/view/other.txt", function(data){ tmpl_html.other = data; });
 
 /**
  Master game State Object.
@@ -72,30 +78,6 @@ function Game() {
     var stage = new addToDom("<div>", "stage", "body");
     var loader = new addToDom("<div>", "loader", "body");
 
-    var gameDisp = [
-      $("<p>").attr("id", "curfood").text("food text here"),
-      $("<p>").text("Time left to prepare digestion:"),
-      $("<p>").attr("id", "count").text("3"),
-      $("<p>").text("Nutrients (score"),
-      $("<p>").attr("id", "score").text("20"),
-      $("<p>").text("Nutrient Absorbtion Rate:"),
-      $("<p>").attr("id", "rate").text("10")
-    ];
-
-    function sliderDisp(){
-      $('<label id= "digestiontimelabel">digestiontime</label>').appendTo("#control-overlay");
-      $('<input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="digestiontimeslider">').appendTo("#digestiontimelabel");
-      $('<output id="digestiontime">5</output>').appendTo("#digestiontimelabel");
-
-      $('<label for="nutrientabsorblabel"> nutrientabsorb</label>').appendTo("#control-overlay");
-      $('<input type="range" min="0" max="10" class="mrslider" value="5" id="nutrientabsorbslider" step="1"/>').appendTo('#control-overlay');
-      $('<output for="nutrientabsorb" id="nutrientabsorb">5</output>').appendTo('#control-overlay');
-
-      $('<label for="immunestrength">immunestrength</label>').appendTo("#control-overlay");
-      $('<input type="range" class="mrslider" min="0" max="10" value="5" id="immunestrengthslider" step="1">').appendTo("#control-overlay");
-      $('<output for="immunestrength" id="immunestrength"> 5</output>').appendTo("#control-overlay");
-    }
-
     function butDisp(){
       $('<button>').addClass("upgrade1").text('Upgrade Nutrient Absorbtion (cost of 200)').appendTo('#control-overlay');
       $('<button>').addClass("upgrade2").text('Upgrade Slider Capacity (cost of 200)').appendTo('#control-overlay');
@@ -109,8 +91,7 @@ function Game() {
     }
     //calling these interior functions to setup the game display/state
     bodyAdd(domArr);  //append to body
-    overlayAdd(gameDisp); //append to control overlay
-    sliderDisp();
+	$("#control-overlay").append( tmpl_html.control_column );
     butDisp();
   } //masterGameDisp end
 
@@ -196,7 +177,7 @@ function Game() {
       nibbles.push(omnom);
     });
 
-	self.tri_controller = new Tricontroller({ "parent" : $("#control-overlay") });
+	self.tri_controller = new Tricontroller({ "parent" : $("#control-overlay"), "width" : 120 });
 
     var animate = function() {
 		requestAnimationFrame( animate );
@@ -225,20 +206,6 @@ function Game() {
       return {'x': lite_post[0], 'y': lite_post[1]};
     };
 
-
-    //tracking three main values, per future triangle design
-    //these could be migrated to gameLogic, then called within it.
-    function sliderLogic() {
-      $('#digestiontimeslider').on("input", function(){
-          outputUpdate($('#digestiontimeslider').val(), '#digestiontime');
-      });
-      $('#nutrientabsorbslider').on("input", function(){
-        outputUpdate($('#nutrientabsorbslider').val(), '#nutrientabsorb');
-      });
-      $('#immunestrengthslider').on("input", function(){
-        outputUpdate($('#immunestrengthslider').val(), '#immunestrength');
-      });
-    }
 
     function upgradeLogic() {
       $(".upgrade1").click(function(){
@@ -299,9 +266,12 @@ function Game() {
         var foodNums = food.triangle;
         console.log(foodNums);
         var modVals = mod.triangle;
-        masterArr.triangle.forEach(function(item){
-        var select = newArr.push($("#" + item).text());
-        });
+
+		select = [
+			game.tri_controller.rgb.r,
+			game.tri_controller.rgb.g,
+			game.tri_controller.rgb.b
+		];
          $("#score").text(parseInt($("#score").text()) + 5);
         /*var finalVals = food.stats.map(function(item, i){
             return item * modVals[i]
@@ -325,15 +295,19 @@ function Game() {
           digestion_counter--;
           if (digestion_counter === 0 && !gameover) {
           digestion_counter = 4;
-          console.log
           var randomMod = masterArr.modifier[randomizer(0, masterArr.modifier.length-1)];
             var randomFood = masterArr.food[randomizer(0, masterArr.food.length-1)];
             console.log("randomFood" + randomFood);
-            $("#curfood").text(randomMod.named + " " + randomFood.named);
+			$(".food-pane").addClass("deleted");
+			var new_food = $("#control-overlay").prepend( tmpl_html.control_column );
+            new_food.find("#curfood").text(randomMod.named + " " + randomFood.named);
             newScore(randomFood, randomMod);
           } else if(gameover) {  //ends loop if gameover is true
             return;
           }
+		  else {
+			$(".food-pane.deleted").remove();
+		  }
            $("#count").text(digestion_counter);
           countDown();
         }, 1000);
@@ -343,7 +317,6 @@ function Game() {
     }
     //calling interior functions
     gameLogic();
-    sliderLogic();
     upgradeLogic();
   }; //gamestart end
 
@@ -405,7 +378,7 @@ $(function() {
     })
   }
   getJSONS();
-	var game = new Game();
+	game = new Game();
 	game.titleScreen();
 //end of masterInit function. Can talk about the preferred indenting, but everything's already nested once for .ready and things will be moved out of it next refactor.
   //Game called to start program
