@@ -3,31 +3,36 @@
 		{
 			"kind": "food",
 			"named": "Grilled Cheese",
-			"img": "gcheese.jpg",
+			"img": "img/fud_00.png",
+			"img_xywh": [ 128, 64, 64, 64 ],
 			"triangle": [5, 1, 1]
 		},
 		{
 			"kind": "food",
 			"named": "Apple Pie",
-			"img": "apie.jpg",
+			"img": "img/fud_00.png",
+			"img_xywh": [ 192, 64, 64, 64 ],
 			"triangle": [1,1,1]
 		},
 		{
 			"kind": "food",
 			"named": "Pizza",
-			"img": "pizza.jpg",
+			"img": "img/fud_00.png",
+			"img_xywh": [ 0, 64, 64, 64 ],
 			"triangle": [2,2,2]
 		},
 		{
 			"kind": "food",
 			"named": "Tripe",
-			"img": "tripe.jpg",
+			"img": "img/fud_00.png",
+			"img_xywh": [ 64, 64, 64, 64 ],
 			"triangle": [3,4,1]
 		},
 		{
 			"kind": "food",
 			"named": "Shellfish",
-			"img": "shellfish.jpg",
+			"img": "img/fud_00.png",
+			"img_xywh": [ 64, 64, 64, 64 ],
 			"triangle": [3,3,8]
 		}
 	]

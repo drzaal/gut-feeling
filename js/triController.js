@@ -4,6 +4,9 @@
  */
 
 var Tricontroller = function ( args ) {
+	if ( args === undefined ) {
+		args = {};
+	}
 	var self = this;
 	var html, ui_elmt;
 	var root3_2 = Math.sqrt(3) / 2;
@@ -22,7 +25,7 @@ var Tricontroller = function ( args ) {
 
 	self.bounds = {
 		"width" : args.width,
-		"height" : args.height
+		"height" : args.width * root3_2
 	};
 
 	self.cart2color = function ( x, y ) {
@@ -35,9 +38,6 @@ var Tricontroller = function ( args ) {
 		var center = new vector2( self.center.x, self.center.y );
 		var u = new vector2( x, y );
 
-		console.log( center );
-		console.log( "xy %d %d", x, y );
-		console.log(self.bounds);
 		var r_point = new vector2( 0, self.bounds.height );
 		var g_point = new vector2( self.bounds.width/2, 0 );
 		var b_point = new vector2( self.bounds.width, self.bounds.height );
@@ -81,8 +81,12 @@ var Tricontroller = function ( args ) {
 		}
 		self.center = {
 			"x" : self.bounds.width / 2,
-			"y" : self.bounds.width * ( root3_3 )
+			"y" : self.bounds.height - self.bounds.width * ( root3_3 / 2 ) 
 		}
+		self.rgb = { "r": 0, "g": 0, "b": 0 };
+
+		self.ui_elmt.x = self.center.x - self.ui_elmt.width()/2;
+		self.ui_elmt.y = self.center.y - self.ui_elmt.height()/2;
 		// Assign event handlers
 		self.html.click( self.click );
 

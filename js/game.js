@@ -13,6 +13,7 @@ var config = { // Put all of our modifiable constants right here. Might save us 
 	"nutrientNames" : ["acid ", "meat", "veggie"],
 	"ads" : false
 };
+var game;
 var masterArr = {
 	"triangle": ["digestiontime ", "nutrientabsorb", "immunestrength"],
 	"bacteria": [],
@@ -21,6 +22,16 @@ var masterArr = {
 	"body": [],
 	"eatenFood": []
 };
+
+// Audio loading.
+var music_ichiban = new buzz.sound("/audio/guineo_feat_kristina_maier-expectacion.mp3");
+// var music_ichiban = new buzz.sound("/audio/guineo-metamorfosis.mp3");
+
+var tmpl_html = [];
+$.get("/view/control_column.txt", function(data){ tmpl_html.control_column = data; });
+$.get("/view/meal.txt", function(data){ tmpl_html.meal_one = data; });
+$.get("/view/body.txt", function(data){ tmpl_html.body = data; });
+$.get("/view/other.txt", function(data){ tmpl_html.other = data; });
 
 /**
  Master game State Object.
@@ -34,6 +45,7 @@ function Game() {
       var baseAbsorb = 10;
       var upgradeModifier = 2;
 
+	// Treat this nicely! This is our Main update loop. Unsloppy it!
     self.main = function() {
 	  self.tri_controller.update();
       self.nibbles.forEach(function(nibble){
@@ -72,30 +84,6 @@ function Game() {
     var stage = new addToDom("<div>", "stage", "body");
     var loader = new addToDom("<div>", "loader", "body");
 
-    var gameDisp = [
-      $("<p>").attr("id", "curfood").text("food text here"),
-      $("<p>").text("Time left to prepare digestion:"),
-      $("<p>").attr("id", "count").text("3"),
-      $("<p>").text("Nutrients (score"),
-      $("<p>").attr("id", "score").text("20"),
-      $("<p>").text("Nutrient Absorbtion Rate:"),
-      $("<p>").attr("id", "rate").text("10")
-    ];
-
-    function sliderDisp(){
-      $('<label id= "digestiontimelabel">digestiontime</label>').appendTo("#control-overlay");
-      $('<input type="range" class="mrslider" min="0" max="10"  value="5" step="1" id="digestiontimeslider">').appendTo("#digestiontimelabel");
-      $('<output id="digestiontime">5</output>').appendTo("#digestiontimelabel");
-
-      $('<label for="nutrientabsorblabel"> nutrientabsorb</label>').appendTo("#control-overlay");
-      $('<input type="range" min="0" max="10" class="mrslider" value="5" id="nutrientabsorbslider" step="1"/>').appendTo('#control-overlay');
-      $('<output for="nutrientabsorb" id="nutrientabsorb">5</output>').appendTo('#control-overlay');
-
-      $('<label for="immunestrength">immunestrength</label>').appendTo("#control-overlay");
-      $('<input type="range" class="mrslider" min="0" max="10" value="5" id="immunestrengthslider" step="1">').appendTo("#control-overlay");
-      $('<output for="immunestrength" id="immunestrength"> 5</output>').appendTo("#control-overlay");
-    }
-
     function butDisp(){
       $('<button>').addClass("upgrade1").text('Upgrade Nutrient Absorbtion (cost of 200)').appendTo('#control-overlay');
       $('<button>').addClass("upgrade2").text('Upgrade Slider Capacity (cost of 200)').appendTo('#control-overlay');
@@ -109,8 +97,7 @@ function Game() {
     }
     //calling these interior functions to setup the game display/state
     bodyAdd(domArr);  //append to body
-    overlayAdd(gameDisp); //append to control overlay
-    sliderDisp();
+	$("#control-overlay").append( tmpl_html.meal_one + tmpl_html.control_column );
     butDisp();
   } //masterGameDisp end
 
@@ -173,15 +160,19 @@ function Game() {
 
     stage.addChild( corpus_primus );
     $("canvas").click(function(event){
+		return -1; // We are temporarily disabling the click.
       //declaration hoisting makes it preferable to define omnom at top... I think.
       var omnom;
-    	if (new Date() & 2) {
-        omnom = new PIXI.Sprite(ill_assets['ecoli']);
-    	} else {
-        omnom = new PIXI.Sprite(ill_assets['stephalo']);
-    	}
-    	omnom.width = 64;
-    	omnom.height = 64;
+
+    	/*
+		 * if (new Date() & 2) {
+         * omnom = new PIXI.Sprite(ill_assets['ecoli']);
+    	 * } else {
+         * omnom = new PIXI.Sprite(ill_assets['stephalo']);
+    	 * }
+    	 * omnom.width = 64;
+    	 * omnom.height = 64;
+		 */
       //var omnom = new PIXI.Sprite(food_assets['c_wing']);
       omnom.anchor.x = 0.5;
       omnom.anchor.y = 0.5;
@@ -196,7 +187,7 @@ function Game() {
       nibbles.push(omnom);
     });
 
-	self.tri_controller = new Tricontroller({ "parent" : $("#control-overlay") });
+	self.tri_controller = new Tricontroller({ "parent" : $("#control-overlay"), "width" : 120 });
 
     var animate = function() {
 		requestAnimationFrame( animate );
@@ -210,35 +201,28 @@ function Game() {
 
   /*
    * Converts a given percentage to a coordinate along a bounded vertex-defined linear path.
+   * Added some quick lerping
    * @TODO Please note this is tied explicitly to the Gastro vertices and must be generalized
+   * @TODO Lerp should be cleaned up / generalized
   */
 
     var pathPercent2Cart = function( percent ) {
       //same hoisting issue as omnom
-      var lite_post_id;
+      var lite_post_id, lerp_remainder = 0, lerp_vector = { "x":0, "y":0 };
       if (percent < 100) {
-        lite_post_id = Math.floor( percent/100 * gastro_vertices.length );
+		lerp_remainder = percent/100 * gastro_vertices.length;
+        lite_post_id = Math.floor( lerp_remainder );
+		lerp_remainder = lerp_remainder - lite_post_id;
+		lerp_vector.x = ( gastro_vertices[ lite_post_id+1 ].x - gastro_vertices[ lite_post_id ].x ) * lerp_remainder; 
+		lerp_vector.y = ( gastro_vertices[ lite_post_id+1 ].y - gastro_vertices[ lite_post_id ].y ) * lerp_remainder;
       } else {
         lite_post_id = gastro_vertices.length - 1;
       }
         lite_post = gastro_vertices[ lite_post_id ];
-      return {'x': lite_post[0], 'y': lite_post[1]};
+
+      return {'x': lite_post[0] + lerp_vector.x, 'y': lite_post[1] + lerp_vector.y };
     };
 
-
-    //tracking three main values, per future triangle design
-    //these could be migrated to gameLogic, then called within it.
-    function sliderLogic() {
-      $('#digestiontimeslider').on("input", function(){
-          outputUpdate($('#digestiontimeslider').val(), '#digestiontime');
-      });
-      $('#nutrientabsorbslider').on("input", function(){
-        outputUpdate($('#nutrientabsorbslider').val(), '#nutrientabsorb');
-      });
-      $('#immunestrengthslider').on("input", function(){
-        outputUpdate($('#immunestrengthslider').val(), '#immunestrength');
-      });
-    }
 
     function upgradeLogic() {
       $(".upgrade1").click(function(){
@@ -276,14 +260,13 @@ function Game() {
 
       masterArr.body = masterArr.body[0];
       // Get this junk in a json,xml,textfile,or something.
-      /*var gCheese = new AssetMake("food", "Grilled Cheese", "gcheese.jpg", [5,1,1]);
-      var pizza = new AssetMake ("food", "Pizza", "pizza.jpg", [1,1,5]); */
-      //values used for upgrades and state
       var foodVals = ["digestiontime", "nutrientabsorb", "immunestrength"];
       /*var actionPanelUpdate = function() {
       $("body").append('<div id="action-event-panel"></div>');
       $.getJSON("js/test-actions.json", function(data, status, jqXHR) {
       var aeq = new ActionEventQ({ selector: "#action-event-panel", multiple: true });
+
+		// Action event queue initialize
       aeq.loadDef( data );
       aeq.triggerEvent(0);
       aeq.triggerEvent(2);
@@ -299,9 +282,12 @@ function Game() {
         var foodNums = food.triangle;
         console.log(foodNums);
         var modVals = mod.triangle;
-        masterArr.triangle.forEach(function(item){
-        var select = newArr.push($("#" + item).text());
-        });
+
+		select = [
+			game.tri_controller.rgb.r,
+			game.tri_controller.rgb.g,
+			game.tri_controller.rgb.b
+		];
          $("#score").text(parseInt($("#score").text()) + 5);
         /*var finalVals = food.stats.map(function(item, i){
             return item * modVals[i]
@@ -325,15 +311,28 @@ function Game() {
           digestion_counter--;
           if (digestion_counter === 0 && !gameover) {
           digestion_counter = 4;
-          console.log
           var randomMod = masterArr.modifier[randomizer(0, masterArr.modifier.length-1)];
             var randomFood = masterArr.food[randomizer(0, masterArr.food.length-1)];
             console.log("randomFood" + randomFood);
-            $("#curfood").text(randomMod.named + " " + randomFood.named);
+			$(".food-pane").addClass("deleted");
+			var new_food = $("#control-overlay").prepend( tmpl_html.meal_one );
+            new_food.find("#curfood").text(randomMod.named + " " + randomFood.named);
+            new_food.find("#curfood_img").css({
+				"background-image": "url(" + randomFood.img + ")",
+				"background-size": "256px 128px",
+				"background-position": -randomFood.img_xywh[0] + "px " + -randomFood.img_xywh[1] + "px",
+				"width": 64,
+				"height": 64,
+				"margin": "0 auto"
+			});
             newScore(randomFood, randomMod);
           } else if(gameover) {  //ends loop if gameover is true
             return;
           }
+		  else {
+			$(".food-pane.deleted").hide();
+			$(".food-pane.deleted").remove();
+		  }
            $("#count").text(digestion_counter);
           countDown();
         }, 1000);
@@ -343,7 +342,6 @@ function Game() {
     }
     //calling interior functions
     gameLogic();
-    sliderLogic();
     upgradeLogic();
   }; //gamestart end
 
@@ -379,10 +377,11 @@ $(function() {
       }
 
       //Asset constructor works for foods and bacteria
-      function AssetMake(kind, named, img, triangle){
+      function AssetMake(kind, named, img, dimen, triangle){
         this.kind = kind;
         this.named = named;
         this.img = img;
+        this.img_xywh = dimen;
         this.triangle = triangle;
         /*this.stats = objPropper(masterArr.triangle, stats, {}); */
         masterArr[kind].push(this);
@@ -392,7 +391,7 @@ $(function() {
     $.getJSON("js/newfoods.json", function (data, status){
       console.log("got it newfoods", data)
             data.foods.forEach(function(item){
-              new AssetMake (item.kind, item.named, item.img, item.triangle);
+              new AssetMake (item.kind, item.named, item.img, item.img_xywh, item.triangle);
             })
             console.log("done", masterArr);
     })
@@ -405,8 +404,9 @@ $(function() {
     })
   }
   getJSONS();
-	var game = new Game();
+	game = new Game();
 	game.titleScreen();
+	music_ichiban.play().fadeIn().loop();
 //end of masterInit function. Can talk about the preferred indenting, but everything's already nested once for .ready and things will be moved out of it next refactor.
   //Game called to start program
 }); //$(document).ready end
