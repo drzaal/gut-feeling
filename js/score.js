@@ -1,13 +1,11 @@
 
 //newScore may become scoreCalc
-var triangleArr = ["digestiontime ", "nutrientabsorb", "immunestrength"];
 var testFood = [15, 1, 10];
 var testMod = [1, 1, 1];
 var testSlider = [1, 15, 10];
 var sliderMax = 5;
-//var damageScores = [20, 20, 20] gastroparesis, malnutrition, illness
 var nutrientTotals = [500, 500, 500];
-
+//var damageScores = [20, 20, 20] gastroparesis, malnutrition, illness
 
 function scoreUpdate(food, mod, slider, totals, maximum){
   var temptotals = totals.slice();
