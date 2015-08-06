@@ -14,28 +14,32 @@ var Flora = function( stage, event, args ) {
 	self.actor.anchor.x = 0.5;
 	self.actor.anchor.y = 0.5;
 
-	self.actor.position.x = event.originalEvent.offsetX;
-	self.actor.position.y = event.originalEvent.offsetY;
+	self.actor.position.x = event.X;
+	self.actor.position.y = event.Y;
 
 	self.actor.path_percent = 0;
 
 	// This part isn't going to work, that's for sure.
-	stage.addChild(self.actor);
+	game.stage.addChild(self.actor);
 
 	self.update = function() {
-        sel.actor.path_percent += 0.2;
-        var path_bias = pathPercent2Cart( nibble.path_percent );
+        self.actor.path_percent += 0.2;
+        var path_bias = pathPercent2Cart( self.actor.path_percent, game.gastro_vertices );
         self.actor.x += (path_bias.x - self.actor.x) / 20;
         self.actor.y += (path_bias.y - self.actor.y) / 20;
         self.actor.rotation += 0.1;
 	};
 
-	self.render = function() {
-
-	};
+	self.remove = function() {
+		game.stage.removeChild(self.actor);
+	}
 
 };
-Flora.texture_main = PIXI.Texture.fromImage('img/ill_00.png');
-Flora.type = [];
-Flora.type['ecoli'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(0, 0, 256, 256));
-Flora.type['stephalo'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(256, 0, 256, 256));
+
+// DON'T DO THIS, DUMMY
+$(function() {
+	Flora.texture_main = PIXI.Texture.fromImage('img/ill_00.png');
+	Flora.type = [];
+	Flora.type['ecoli'] = new PIXI.Texture(Flora.texture_main, new PIXI.Rectangle(0, 0, 256, 256));
+	Flora.type['stephalo'] = new PIXI.Texture(Flora.texture_main, new PIXI.Rectangle(256, 0, 256, 256));
+});

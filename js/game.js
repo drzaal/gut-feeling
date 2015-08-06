@@ -39,6 +39,7 @@ $.get("/view/other.txt", function(data){ tmpl_html.other = data; });
 function Game() {
 	var self = this;
 	this.stomach = new Stomach();
+	self.controllers = [];
    //not indenting additionally here
       //pseudo-globals corresponding to upgradeLogic
       var baseUpCost = 200;
@@ -48,13 +49,8 @@ function Game() {
 	// Treat this nicely! This is our Main update loop. Unsloppy it!
     self.main = function() {
 	  self.tri_controller.update();
-      self.nibbles.forEach(function(nibble){
-        nibble.path_percent += 0.2;
-        var path_bias = pathPercent2Cart( nibble.path_percent );
-        nibble.x += (path_bias.x - nibble.x) / 20;
-        nibble.y += (path_bias.y - nibble.y) / 20;
-        nibble.rotation += 0.1;
-      });
+	  self.controllers.forEach( function(controller){ controller.update( 0.03 ); });
+
     };
 
   function masterGameDisp(){
@@ -89,6 +85,7 @@ function Game() {
       $('<button>').addClass("upgrade2").text('Upgrade Slider Capacity (cost of 200)').appendTo('#control-overlay');
     }
 
+
     function overlayAdd(items){
       var i;
       for (i=0; i < items.length; i++){
@@ -100,6 +97,14 @@ function Game() {
 	$("#control-overlay").append( tmpl_html.meal_one + tmpl_html.control_column );
     butDisp();
   } //masterGameDisp end
+
+	/*
+	 * Register a Controller with the primary game.
+	 * This allows the Primary Game Controller to access standard methods and hooks.
+	 */
+	 self.register_controller = function( controller ) {
+		self.controllers.push( controller );
+	 }
 
 
   //TODO: seperate animation within gameStart function
@@ -197,31 +202,6 @@ function Game() {
     requestAnimationFrame(animate);
     setInterval( self.main, 30 );
 	console.log("We should have set this already?");
-
-
-  /*
-   * Converts a given percentage to a coordinate along a bounded vertex-defined linear path.
-   * Added some quick lerping
-   * @TODO Please note this is tied explicitly to the Gastro vertices and must be generalized
-   * @TODO Lerp should be cleaned up / generalized
-  */
-
-    var pathPercent2Cart = function( percent ) {
-      //same hoisting issue as omnom
-      var lite_post_id, lerp_remainder = 0, lerp_vector = { "x":0, "y":0 };
-      if (percent < 100) {
-		lerp_remainder = percent/100 * gastro_vertices.length;
-        lite_post_id = Math.floor( lerp_remainder );
-		lerp_remainder = lerp_remainder - lite_post_id;
-		lerp_vector.x = ( gastro_vertices[ lite_post_id+1 ].x - gastro_vertices[ lite_post_id ].x ) * lerp_remainder; 
-		lerp_vector.y = ( gastro_vertices[ lite_post_id+1 ].y - gastro_vertices[ lite_post_id ].y ) * lerp_remainder;
-      } else {
-        lite_post_id = gastro_vertices.length - 1;
-      }
-        lite_post = gastro_vertices[ lite_post_id ];
-
-      return {'x': lite_post[0] + lerp_vector.x, 'y': lite_post[1] + lerp_vector.y };
-    };
 
 
     function upgradeLogic() {
@@ -325,6 +305,7 @@ function Game() {
 				"height": 64,
 				"margin": "0 auto"
 			});
+			intestine.phase_rgb = game.tri_controller.rgb;
             newScore(randomFood, randomMod);
           } else if(gameover) {  //ends loop if gameover is true
             return;
@@ -343,6 +324,8 @@ function Game() {
     //calling interior functions
     gameLogic();
     upgradeLogic();
+	
+	game.stage = stage;
   }; //gamestart end
 
     self.titleScreen = function(){
@@ -365,6 +348,31 @@ function Game() {
 
 }
 
+/*
+* Converts a given percentage to a coordinate along a bounded vertex-defined linear path.
+* Added some quick lerping
+* @TODO Please note this is tied explicitly to the Gastro vertices and must be generalized
+* @TODO Lerp should be cleaned up / generalized
+*/
+
+var pathPercent2Cart = function( percent, vertices ) {
+  //same hoisting issue as omnom
+  var lite_post_id, lerp_remainder = 0, lerp_vector = { "x":0, "y":0 };
+  if (percent < 100) {
+	lerp_remainder = percent/100 * (vertices.length-1);
+	lite_post_id = Math.floor( lerp_remainder );
+	lerp_remainder = lerp_remainder % 1;
+
+	console.log( "Lite post id %d ", lite_post_id);
+	lerp_vector.x = ( vertices[ lite_post_id+1 ][0] - vertices[ lite_post_id ][0] ) * lerp_remainder; 
+	lerp_vector.y = ( vertices[ lite_post_id+1 ][1] - vertices[ lite_post_id ][1] ) * lerp_remainder;
+  } else {
+	lite_post_id = vertices.length - 1;
+  }
+	lite_post = vertices[ lite_post_id ];
+
+  return {'x': lite_post[0] + lerp_vector.x, 'y': lite_post[1] + lerp_vector.y };
+};
 
 
 $(function() {
@@ -406,7 +414,14 @@ $(function() {
   getJSONS();
 	game = new Game();
 	game.titleScreen();
+	game.register_controller( intestine );
+
+	intestine.flora_cluster_collection.push( new FloraCluster({ name: "ecoli", triple_point: {r: 0.5, g: 0.5, b: 0.5 } }) );
+
+
 	music_ichiban.play().fadeIn().loop();
+
+
 //end of masterInit function. Can talk about the preferred indenting, but everything's already nested once for .ready and things will be moved out of it next refactor.
   //Game called to start program
 }); //$(document).ready end
