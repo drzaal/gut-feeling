@@ -2,11 +2,14 @@
 /*
   TODO:
 
-  A) separate the animation logic & display that's inside the gameStart function because 1) it's messy and 2)the images are added onclick but don't move, so something is getting broken.
 
-  B)Decide what needs to be inside $(document).ready and what doesn't. Currently everything is inside of it.
+  A)Decide what needs to be inside $(document).ready and what doesn't. Currently everything is inside of it.
 
-  C) Breakup the countdown function so it's not doing rules and state duties.
+  B) Breakup the countdown function so it's not doing rules and state duties.
+
+  c) Start considering browser compatibility, we are really getting risky with this now.
+  		- window.performance.now is NOT backwards compatible.
+		- Watch out for the CSS animations
 
 */
 var config = { // Put all of our modifiable constants right here. Might save us some worry. Move this to a config file later.
@@ -27,11 +30,18 @@ var masterArr = {
 var music_ichiban = new buzz.sound("/audio/guineo_feat_kristina_maier-expectacion.mp3");
 // var music_ichiban = new buzz.sound("/audio/guineo-metamorfosis.mp3");
 
+// OUR HTML TEMPLATES Loading
 var tmpl_html = [];
 $.get("/view/control_column.txt", function(data){ tmpl_html.control_column = data; });
 $.get("/view/meal.txt", function(data){ tmpl_html.meal_one = data; });
 $.get("/view/body.txt", function(data){ tmpl_html.body = data; });
 $.get("/view/other.txt", function(data){ tmpl_html.other = data; });
+$.get("/view/bar_heads_up.txt", function(data){ tmpl_html.bar_heads_up = data; });
+
+// OUR ICON IMG ASSETS Loading
+var icons_src;
+$.getJSON("js/icons.json", function(data, status, jqXHR) { icons_src = data; });
+
 
 /**
  Master game State Object.
@@ -39,21 +49,46 @@ $.get("/view/other.txt", function(data){ tmpl_html.other = data; });
 function Game() {
 	var self = this;
 	this.stomach = new Stomach();
+
+	// Our generalized health level. HP from 0-100, Carbs, proteins, and minerals/vitamins.
+	this.health = { h:100, carb: 10, protein: 10, vitamineral: 10 };
+
+	this.getHealth = function() {
+		return self.health.h;
+	};
+	this.getCarb = function() {
+		return self.health.carb;
+	};
+	this.getProtein = function() {
+		return self.health.protein;
+	};
+	this.getVitamineral = function() {
+		return self.health.vitamineral;
+	};
+
 	self.controllers = [];
+	self.t_last = null;
    //not indenting additionally here
       //pseudo-globals corresponding to upgradeLogic
       var baseUpCost = 200;
       var baseAbsorb = 10;
       var upgradeModifier = 2;
 
+
 	// Treat this nicely! This is our Main update loop. Unsloppy it!
     self.main = function() {
+		if ( self.t_last == null ) { self.t_last = window.performance.now(); }
+		var t_old = self.t_last, delta_t;
+		self.t_last = window.performance.now();
+		delta_t = ( self.t_last - t_old ) / 1000;
+
 	  self.tri_controller.update();
-	  self.controllers.forEach( function(controller){ controller.update( 0.03 ); });
+	  self.controllers.forEach( function(controller){ controller.update( delta_t ); });
 
     };
 
   function masterGameDisp(){
+
     $("body").empty();
     actionPanelUpdate(); //calls from action-event-q js file
     $("body").removeClass("mainmenu");
@@ -75,6 +110,7 @@ function Game() {
     }
 
     var controlOverlay = new addToDom("<div>", "control-overlay", "body");
+    var scoreGUI = new addToDom("<div>", "status-hud", "body");
     var header = new addToDom("<header>", "header", "body", "GUT FEELING");
     var footer = new addToDom("<footer>", "footer", "body", "z0lly and duncan");
     var stage = new addToDom("<div>", "stage", "body");
@@ -120,32 +156,28 @@ function Game() {
     var stage;
     self.nibbles = [];
     self.food_assets = {};
-    self.ill_assets = {};
     self.gastro_vertices = [
-      [200, 5],
-      [200, 25],
-      [150, 45],
-      [250, 55],
-      [300, 70],
-      [320, 80],
-      [270, 90],
-      [200, 100],
-      [120, 120],
-      [80, 130],
-      [120, 150],
-      [200, 160],
-      [280, 180],
-      [300, 190],
-      [250, 200],
-      [200, 220]
+      [400, 205],
+      [400, 225],
+      [350, 245],
+      [450, 255],
+      [500, 270],
+      [520, 280],
+      [470, 290],
+      [400, 300],
+      [320, 320],
+      [280, 330],
+      [320, 350],
+      [400, 360],
+      [480, 380],
+      [500, 390],
+      [450, 400],
+      [400, 420]
     ];
     var stageW;
     var stageH;
 
     self.food_assets['c_wing'] = PIXI.Texture.fromImage('img/c_wing.gif');
-    var tmp_ill_texture = PIXI.Texture.fromImage('img/ill_00.png');
-    self.ill_assets['ecoli'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(0, 0, 256, 256));
-    self.ill_assets['stephalo'] = new PIXI.Texture(tmp_ill_texture, new PIXI.Rectangle(256, 0, 256, 256));
 
     stageW = $("#stage").width();
     stageH = $("#stage").height();
@@ -164,35 +196,14 @@ function Game() {
     corpus_primus.position.y = stageH;
 
     stage.addChild( corpus_primus );
-    $("canvas").click(function(event){
-		return -1; // We are temporarily disabling the click.
-      //declaration hoisting makes it preferable to define omnom at top... I think.
-      var omnom;
 
-    	/*
-		 * if (new Date() & 2) {
-         * omnom = new PIXI.Sprite(ill_assets['ecoli']);
-    	 * } else {
-         * omnom = new PIXI.Sprite(ill_assets['stephalo']);
-    	 * }
-    	 * omnom.width = 64;
-    	 * omnom.height = 64;
-		 */
-      //var omnom = new PIXI.Sprite(food_assets['c_wing']);
-      omnom.anchor.x = 0.5;
-      omnom.anchor.y = 0.5;
-
-      omnom.position.x = event.originalEvent.offsetX;
-      omnom.position.y = event.originalEvent.offsetY;
-
-      omnom.path_percent = 0;
-
-      stage.addChild(omnom);
-
-      nibbles.push(omnom);
-    });
-
-	self.tri_controller = new Tricontroller({ "parent" : $("#control-overlay"), "width" : 120 });
+	self.tri_controller = new Tricontroller({ "parent" : $("#control-overlay"), "width" : 200 });
+	// Get the trackers going.
+	game.score.init();
+	game.score.addTracker( "health", game.getHealth );
+	game.score.addTracker( "carb", game.getCarb );
+	game.score.addTracker( "protein", game.getProtein );
+	game.score.addTracker( "vitamineral", game.getVitamineral );
 
     var animate = function() {
 		requestAnimationFrame( animate );
@@ -244,15 +255,15 @@ function Game() {
       /*var actionPanelUpdate = function() {
       $("body").append('<div id="action-event-panel"></div>');
       $.getJSON("js/test-actions.json", function(data, status, jqXHR) {
-      var aeq = new ActionEventQ({ selector: "#action-event-panel", multiple: true });
+		  var aeq = new ActionEventQ({ selector: "#action-event-panel", multiple: true });
 
-		// Action event queue initialize
-      aeq.loadDef( data );
-      aeq.triggerEvent(0);
-      aeq.triggerEvent(2);
-      aeq.processTriggers();
-  });
-}; */
+			// Action event queue initialize
+		  aeq.loadDef( data );
+		  aeq.triggerEvent(0);
+		  aeq.triggerEvent(2);
+		  aeq.processTriggers();
+	  });
+	}; */
 
 
       function newScore(food, mod){
@@ -305,7 +316,7 @@ function Game() {
 				"height": 64,
 				"margin": "0 auto"
 			});
-			intestine.phase_rgb = game.tri_controller.rgb;
+			intestine.phaseChange( game.tri_controller.rgb );
             newScore(randomFood, randomMod);
           } else if(gameover) {  //ends loop if gameover is true
             return;
@@ -363,7 +374,6 @@ var pathPercent2Cart = function( percent, vertices ) {
 	lite_post_id = Math.floor( lerp_remainder );
 	lerp_remainder = lerp_remainder % 1;
 
-	console.log( "Lite post id %d ", lite_post_id);
 	lerp_vector.x = ( vertices[ lite_post_id+1 ][0] - vertices[ lite_post_id ][0] ) * lerp_remainder; 
 	lerp_vector.y = ( vertices[ lite_post_id+1 ][1] - vertices[ lite_post_id ][1] ) * lerp_remainder;
   } else {
@@ -416,8 +426,25 @@ $(function() {
 	game.titleScreen();
 	game.register_controller( intestine );
 
-	intestine.flora_cluster_collection.push( new FloraCluster({ name: "ecoli", triple_point: {r: 0.5, g: 0.5, b: 0.5 } }) );
+	intestine.flora_cluster_collection.push( new FloraCluster({
+		name: "ecoli",
+		triple_point: {r: 0.2, g: 0.6, b: 0.2 },
+		nutrition: {r: 0.001, g: 0.05, b: 0.001}
+	}));
+	intestine.flora_cluster_collection.push( new FloraCluster({
+		name: "stephalo",
+		triple_point: {r: 0.2, g: 0.2, b: 0.6 },
+		nutrition: {r: 0.001, g: 0.001, b: 0.05}
+	}));
+	intestine.flora_cluster_collection.push( new FloraCluster({
+		name: "homily",
+		triple_point: {r: 0.6, g: 0.2, b: 0.2 },
+		nutrition: {r: 0.05, g: 0.001, b: 0.001}
+	}));
 
+	game.score = new Score();
+
+	game.register_controller( game.score );
 
 	music_ichiban.play().fadeIn().loop();
 

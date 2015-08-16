@@ -50,6 +50,35 @@ div {
   opacity: .9;
   width: 200px;
 }
+.heads-up-bar-container {
+	position: relative;
+	vertical-align: middle;
+	height: 64px;
+	width: 200px;
+}
+.heads-up-bar-container .heads-up-icon {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	display: inline-block;
+}
+.heads-up-bar-container .heads-up-bar {
+	position: absolute;
+	left: 64px;
+	bottom: 16px;
+	display: inline-block;
+	height: 12px;
+}
+#status-hud {
+  position: fixed;
+  left: 65%;
+  bottom: 20%;
+  right: auto;
+  margin: 0;
+  clear: both;
+  opacity: .9;
+  width: 200px;
+}
 #loader {
   position: fixed;
   right: 0;
@@ -211,13 +240,16 @@ div {
 /* Tripicker control */
 .ui-control-tripicker {
 	background: url('/img/tricolor.png');
-	width: 256px;
-	height: 208px;
-	background-position-y: -48px;
+	background-size: 268px 268px;
+	background-position: 0px -90px;
+	width: 200px;
+	height: 174px;
 	text-align: left;
 }
 .ui-control-tripicker-knob {
 	background: url('/img/tricolor.png');
+	pointer-events: none;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/tricolor.png', sizingMethod='scale');
 	width: 43px;
 	height: 44px;
 	display: inline-block;

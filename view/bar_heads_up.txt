@@ -1,0 +1,4 @@
+<div class="heads-up-bar-container">
+<span class="heads-up-icon"></span>
+<span class="heads-up-bar"></span>
+</div>

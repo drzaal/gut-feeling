@@ -1,3 +1,70 @@
+/**
+ * Score Class
+ * Score keeps track of the current state of the game. 
+ * I'm coopting this file to use for the HUD.
+ */
+var Score = function() {
+	var self = this;
+	self.html = $('<div id=""></div>');
+
+	self.tracker = {};
+
+	self.init = function() {
+		self.html = $('#status-hud');
+	};
+
+	// Create and add a new tracker element. We are going to want to use this quite a bit
+	// As some of the flora trackers will fall off and on as time goes on.
+	self.addTracker = function( name, callback ) {
+		var icon;
+		var val;
+		if ( !self.tracker[name] && icons_src[name] ) {
+			icon = icons_src[name];
+			self.tracker[name] = {
+				html: $( tmpl_html.bar_heads_up ),
+			};
+			self.html.append( self.tracker[name].html );
+
+
+			self.tracker[name].html.find(".heads-up-icon").css({
+				background: "url(" + icon.src + ")",
+				"background-position": -icon.x + "px " + (-icon.y) + "px",
+				"background-size": icon.img_xy[0] + "px " + icon.img_xy[1] + "px",
+				width: icon.w,
+				height: icon.h
+			});
+			if (callback !== undefined) {
+				val = callback();
+				self.tracker[name].callback = callback;
+				self.tracker[name].val = val;
+				self.tracker[name].html.find(".heads-up-bar").text( " " );
+			}
+			else {
+				self.tracker[name].val = "null";
+				self.tracker[name].html.find(".heads-up-bar").text( "nul" );
+			}
+
+		}
+	};
+	self.removeTracker = function( name ) {
+		self.html.remove( self.tracker[name].html );
+		self.tracker[name].html = null;
+		self.tracker[name].remove();
+	}
+
+	self.update = function( delta_t ){
+		var tracker, tracker_name
+		for ( tracker_name in self.tracker ){
+			tracker = self.tracker[tracker_name];
+			tracker.val = tracker.callback();
+			tracker.html.find(".heads-up-bar").css({
+				width: ( 50 * tracker.val / 100 ) + "px",
+				height: "16px",
+				"background-color": "blue"
+			});
+		}
+	};
+};
 
 //newScore may become scoreCalc
 var testFood = [15, 1, 10];

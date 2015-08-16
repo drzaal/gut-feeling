@@ -1,5 +1,6 @@
 <header id="header">GUT FEELING</header>;
 <div id="control-overlay"></div>
+<div id="status-hud"></div>
 <div id="stage"></div>
 <footer id="footer">z0lly and duncan</footer>
 <div id="loader"></div>
