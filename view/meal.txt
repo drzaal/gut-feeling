@@ -1,5 +1,0 @@
-<div class="food-pane">
- <p id="curfood">food text here</p>
- <div id="curfood_img"></div>
- <p id="count">3</p>
-</div>

@@ -1,0 +1,47 @@
+[
+	{
+		"title": "Hungry",
+		"descr": "You experience a sudden and unexpected dip in your energy level.",
+		"actions": [
+			{
+				"text": "-100 Calories",
+				"callback": "stats",
+				"args": [ "calories", -100]
+			}
+		],
+		"default-action": 0
+	},
+	{
+		"title": "Birthday Cupcake",
+		"descr": "Friend has a birthday, and a wild CUPCAKES appear. Have a cupcake?",
+		"actions": [
+			{
+				"text": "CUPCAKE!",
+				"callback": "stats",
+				"args": [ "calories", 100]
+			},
+			{
+				"text": "Watching my figure",
+				"callback": null
+			}
+		],
+		"default-action": 1
+	},
+	{
+		"title": "Antibiotics",
+		"descr": "Your doc prescribes antibiotics. If you're sick, might be good to clear out bad bacteria. But it could hurt your good bacteria too.",
+		"expiry": 3000,
+		"actions": [
+			{
+				"text": "Medicate!",
+				"callback": "bacteriaHolocaust",
+				"args": [ "all", 80 ]
+			},
+			{
+				"text": "Make Peace with Mortality",
+				"callback": null
+			}
+		],
+		"default-action": 1
+	}
+]

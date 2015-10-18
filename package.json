@@ -19,7 +19,8 @@
     "url": "https://github.com/drzaal/gut-feeling/issues"
   },
   "dependencies": {
-    "http": "0.0.0",
-    "bower": "~1.4.1"
+    "bower": "~1.4.1",
+    "express": "^4.13.3",
+    "http": "0.0.0"
   }
 }
