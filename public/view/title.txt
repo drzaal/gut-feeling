@@ -1,0 +1,7 @@
+<section class="title">
+	<h1 class="titletext">Gut Feeling</h1>
+	<section class="mainopts">
+		<div class="newgame">new game</div>
+		<div class="credits">credits</div>
+	</section>
+</section>

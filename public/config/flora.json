@@ -4,10 +4,12 @@
 		"triple_point": {"r": 0.2, "g": 0.6, "b": 0.2 },
 		"nutrition": {"r": 0.001, "g": 0.05, "b": 0.001}
 	},
+    {
 		"name": "stephalo",
 		"triple_point": {"r": 0.2, "g": 0.2, "b": 0.6 },
 		"nutrition": {"r": 0.001, "g": 0.001, "b": 0.05}
 	},
+    {
 		"name": "homily",
 		"triple_point": {"r": 0.6, "g": 0.2, "b": 0.2 },
 		"nutrition": {"r": 0.05, "g": 0.001, "b": 0.001}

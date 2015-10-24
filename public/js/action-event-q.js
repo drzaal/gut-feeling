@@ -138,7 +138,7 @@ var ActionEventQ = function( args ) {
 	//created named var here so it can be called on gameStart
 var actionPanelUpdate = function() {
 	$("body").append('<div id="action-event-panel"></div>');
-	$.getJSON("js/test-actions.json", function(data, status, jqXHR) {
+	$.getJSON("config/test-actions.json", function(data, status, jqXHR) {
 		var aeq = new ActionEventQ({ selector: "#action-event-panel" });
 		aeq.loadDef( data );
 
