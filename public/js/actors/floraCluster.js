@@ -23,9 +23,9 @@ var FloraCluster = function( args) {
 		if ( args === undefined ) { args = {}; }
 
 		self.collection.forEach(function( flora ){
-			game.health.protein += self.nutrition.r;
-			game.health.carb += self.nutrition.g;
-			game.health.vitamineral += self.nutrition.b;
+			game.getProtein += self.nutrition.r;
+			game.getCarb += self.nutrition.g;
+			game.getVitamineral += self.nutrition.b;
 			flora.update( delta_t );
 		});
 
@@ -48,7 +48,8 @@ var FloraCluster = function( args) {
 		if (self.collection.length >= intestine.pop_max) { return; }
 		var rando_offset_x = Math.random() * 75;
 		var rando_offset_y = Math.random() * 75;
-		var new_flora = new Flora( game.stage, self.name, { X: game.stageW/2+rando_offset_x, Y: game.stageH/2+rando_offset_y } )
+		var sBounds = game.getBounds();
+		var new_flora = new Flora( game.stageAdd, self.name, { X: sBounds.stageW/2+rando_offset_x, Y: sBounds.stageH/2+rando_offset_y } )
 		self.collection.push( new_flora );
 		intestine.pop_current +=1;
 
@@ -65,7 +66,7 @@ var FloraCluster = function( args) {
 
 // Maybe I'll set this up so that we can call our flora Factory from here. I dunno.
 FloraCluster.generateFloraAt = function( event, args ){ 
-	return new Flora( game.stage, event, args );	
+	return new Flora( game.stageAdd, event, args );	
 };
 
 // This shouldn't be a static value, but should come from a config file. Too lazy.

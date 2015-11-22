@@ -8,19 +8,9 @@ var gutFeeling = gutFeeling || {};
   c) Start considering browser compatibility, we are really getting risky with this now.
   		- window.performance.now is NOT backwards compatible.
 		- Watch out for the CSS animations
-
 */
 
 var game;
-var masterArr = {
-    "triangle": ["digestiontime ", "nutrientabsorb", "immunestrength"],
-    "bacteria": [],
-    "food": [],
-    "modifier": [],
-    "body": [],
-    "eatenFood": []
-};
-
 
 /**
  Master game State Object.
@@ -28,6 +18,9 @@ var masterArr = {
 gutFeeling.Game = function Game() {
     var self = this;
     this.stomach = new Stomach();
+    this.assets = {};
+    this.stage;
+    this.renderer;
 
     // Our generalized health level. HP from 0-100, Carbs, proteins, and minerals/vitamins.
     this.health = {
@@ -49,6 +42,17 @@ gutFeeling.Game = function Game() {
     };
     this.getVitamineral = function () {
         return self.health.vitamineral;
+    };
+
+    this.getBounds = function getBounds() {
+        return {
+            stageW: self.stageW,
+            stageH: self.stageH
+        }
+    };
+
+    this.setAssets = function setAssets(data) {
+        self.assets = data;
     };
 
     self.controllers = [];
@@ -84,13 +88,13 @@ gutFeeling.Game = function Game() {
     }
 
     self.startLevel = function startLevel(level) {
-
+        var tmpl_html = self.assets.templates;
         self.clearDOM();
         var domArr = [];
 
         $('body').append(tmpl_html.body);
-        $("#control-overlay").append(tmpl_html.meal_one + tmpl_html.control_column);
-        butDisp();
+        $("#control-overlay").append(tmpl_html.meal + tmpl_html.control);
+        // butDisp();
     }
 
     /*
@@ -99,6 +103,22 @@ gutFeeling.Game = function Game() {
      */
     self.register_controller = function (controller) {
         self.controllers.push(controller);
+    }
+
+    /*
+     * Add To Stage
+     * Adds a PIXI object to the primary game stage.
+     */
+    self.stageAdd = function ( resource ) {
+        self.stage.addChild( resource );
+    }
+
+    /*
+     * Remove from Stage
+     * Removes a PIXI object from the primary game stage.
+     */
+    self.stageRemove = function ( resource ) {
+        self.stage.removeChild( resource );
     }
 
     /**
@@ -111,6 +131,7 @@ gutFeeling.Game = function Game() {
         var stageH = self.stageH = $("#stage").height();
         var bg_W_ = Math.max(stageH, stageW / 2);
 
+        var meal_venue = self.meal_venue;
         meal_venue.width = bg_W_ * 5;
         meal_venue.height = bg_W_ * 3;
         meal_venue.anchor.x = 0;
@@ -120,32 +141,31 @@ gutFeeling.Game = function Game() {
     };
     $(window).resize(self.resize);
 
-
     //TODO: separate animation within gameStart function
     self.gameStart = function () {
-        startLevel();
+        self.startLevel();
 
-        var stage;
+        var stage, renderer;
         self.nibbles = [];
         self.food_assets = {};
         var stageW;
         var stageH;
 
-        stageW = $("#stage").width();
-        stageH = $("#stage").height();
+        stageW = self.stageW = $("#stage").width();
+        stageH = self.stageH = $("#stage").height();
 
-        stage = new PIXI.Stage(0xffffff);
-        renderer = PIXI.autoDetectRenderer(stageW, stageH, {
+        stage = self.stage = new PIXI.Stage(0xffffff);
+        renderer = self.renderer = PIXI.autoDetectRenderer(stageW, stageH, {
             transparent: true
         });
 
         $("#stage").append(renderer.view);
         console.log("STAGE width %s height %s", stage.width, stage.height);
 
-        var gourmand = Gourmand.create();
+        var gourmand = gutFeeling.Gourmand.create(self.getBounds());
 
         // Calculating viewport proportions.
-        var meal_venue = new PIXI.Sprite(PIXI.Texture.fromImage('/img/meal_venue.jpg'));
+        var meal_venue = self.meal_venue = new PIXI.Sprite(PIXI.Texture.fromImage('/img/meal_venue.jpg'));
         self.levelBG = meal_venue;
 
         self.resize();
@@ -158,11 +178,12 @@ gutFeeling.Game = function Game() {
             "width": 200
         });
         // Get the trackers going.
-        game.score.init();
-        game.score.addTracker("health", game.getHealth);
-        game.score.addTracker("carb", game.getCarb);
-        game.score.addTracker("protein", game.getProtein);
-        game.score.addTracker("vitamineral", game.getVitamineral);
+        self.score = gutFeeling.Score.create(self.assets.templates.bar_ui, self.assets.icons);
+        self.score.addTracker("health", self.getHealth);
+        self.score.addTracker("carb", self.getCarb);
+        self.score.addTracker("protein", self.getProtein);
+        self.score.addTracker("vitamineral", self.getVitamineral);
+        self.register_controller(self.score);
 
         var animate = function () {
             requestAnimationFrame(animate);
@@ -201,7 +222,6 @@ gutFeeling.Game = function Game() {
         } //end of upgrade logic;
         //function
         function gameLogic() {
-            masterArr.body = masterArr.body[0];
             // Get this junk in a json,xml,textfile,or something.
             var foodVals = ["digestiontime", "nutrientabsorb", "immunestrength"];
             /*var actionPanelUpdate = function() {
@@ -218,95 +238,109 @@ gutFeeling.Game = function Game() {
 	}; */
 
 
-            function newScore(food, mod) {
-                console.log(food);
-                console.log(mod);
-                var newArr = [];
-                var foodNums = food.triangle;
-                console.log(foodNums);
-                var modVals = mod.triangle;
-
-                select = [
-			game.tri_controller.rgb.r,
-			game.tri_controller.rgb.g,
-			game.tri_controller.rgb.b
-		];
-                $("#score").text(parseInt($("#score").text()) + 5);
-                /*var finalVals = food.stats.map(function(item, i){
-                    return item * modVals[i]
-                 })*/
-            }
-
-            //TODO: refactor this into subfunctions
-            var digestion_counter = 4;
-            var gameover = false;
-
-            function countDown() {
-                if ($("#score").text() <= -10) { //can put gameover check in other places as well
-                    gameover = true;
-                    alert("you died of stomach illness!");
-                    $("body").empty();
-                    $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead.").addClass("gameover");
-                    setTimeout(function () {
-                        return self.titleScreen();
-                    }, 3500);
-                }
-                setTimeout(function () { // Making it a timeout just so I know it ALWAYS is calling countDown once first.
-                    digestion_counter--;
-                    if (digestion_counter === 0 && !gameover) {
-                        digestion_counter = 4;
-                        var randomMod = masterArr.modifier[randomizer(0, masterArr.modifier.length - 1)];
-                        var randomFood = masterArr.food[randomizer(0, masterArr.food.length - 1)];
-                        console.log("randomFood" + randomFood);
-                        $(".food-pane").addClass("deleted");
-                        var new_food = $("#control-overlay").prepend(tmpl_html.meal_one);
-                        new_food.find("#curfood").text(randomMod.named + " " + randomFood.named);
-                        new_food.find("#curfood_img").css({
-                            "background-image": "url(" + randomFood.img + ")",
-                            "background-size": "256px 128px",
-                            "background-position": -randomFood.img_xywh[0] + "px " + -randomFood.img_xywh[1] + "px",
-                            "width": 64,
-                            "height": 64,
-                            "margin": "0 auto"
-                        });
-                        intestine.phaseChange(game.tri_controller.rgb);
-                        newScore(randomFood, randomMod);
-                    } else if (gameover) { //ends loop if gameover is true
-                        return;
-                    } else {
-                        $(".food-pane.deleted").hide();
-                        $(".food-pane.deleted").remove();
-                    }
-                    $("#count").text(digestion_counter);
-                    countDown();
-                }, 1000);
-            }
             //gameLogic calls countdown, will want to split up countdown later because it is acting almost like game state right now
-            countDown();
+            self.countDown();
         }
         //calling interior functions
         gameLogic();
         upgradeLogic();
 
         game.stage = stage;
-        game.stageW = stageW;
-        game.stageH = stageH;
     }; //gamestart end
 
     self.titleScreen = function () {
+        console.log(self.assets);
         self.clearDOM();
         $('body').addClass('mainmenu');
-        $('body').append(self.templates.title_screen);
+        $('body').append(self.assets.templates.title_screen);
         $('.newgame').on("click", function () {
-            self.startLevel();
+            self.gameStart();
         });
         $(".credits").on("click", function () {
             alert("Zaal and Duncan made this, please hold your applause");
         });
-
     }
 
+
+    function newScore(food, mod) {
+        console.log(food);
+        console.log(mod);
+        var newArr = [];
+        var foodNums = food.triangle;
+        console.log(foodNums);
+        var modVals = mod.triangle;
+
+        var select = [
+			self.tri_controller.rgb.r,
+			self.tri_controller.rgb.g,
+			self.tri_controller.rgb.b
+		];
+        $("#score").text(parseInt($("#score").text()) + 5);
+        /*var finalVals = food.stats.map(function(item, i){
+            return item * modVals[i]
+         })*/
+    }
+
+    var digestion_counter = 4;
+    var gameover = false;
+    self.countDown = function countDown() {
+        if ($("#score").text() <= -10) { //can put gameover check in other places as well
+            gameover = true;
+            alert("you died of stomach illness!");
+            $("body").empty();
+            $("<p>").appendTo("body").text("The food exploded out of your stomach, much like in Alien. You are dead.").addClass("gameover");
+            setTimeout(function () {
+                return self.titleScreen();
+            }, 3500);
+        }
+        setTimeout(function () { // Making it a timeout just so I know it ALWAYS is calling countDown once first.
+            digestion_counter--;
+            if (digestion_counter === 0 && !gameover) {
+                digestion_counter = 4;
+                console.log(self.assets.food_mods);
+                var randomMod = self.assets.food_mods[randomizer(0, self.assets.food_mods.length - 1)];
+                var randomFood = self.assets.food[randomizer(0, self.assets.food.length - 1)];
+                console.log("randomFood" + randomFood);
+                $(".food-pane").addClass("deleted");
+                var new_food = $("#control-overlay").prepend(self.assets.templates.meal);
+                new_food.find("#curfood").text(randomMod.named + " " + randomFood.named);
+                new_food.find("#curfood_img").css({
+                    "background-image": "url(" + randomFood.img + ")",
+                    "background-size": "256px 512px",
+                    "background-position": -randomFood.img_xywh[0] + "px " + -randomFood.img_xywh[1] + "px",
+                    "width": 64,
+                    "height": 64,
+                    "margin": "0 auto"
+                });
+                intestine.phaseChange(self.tri_controller.rgb);
+                newScore(randomFood, randomMod);
+            } else if (gameover) { //ends loop if gameover is true
+                return;
+            } else {
+                $(".food-pane.deleted").hide();
+                $(".food-pane.deleted").remove();
+            }
+            $("#count").text(digestion_counter);
+            countDown();
+        }, 1000);
+    };
+
+    return {
+        getHealth: this.getHealth,
+        getCarb: this.getCarb,
+        getProtein: this.getProtein,
+        getVitamineral: this.getVitamineral,
+        getBounds: this.getBounds,
+        register_controller: this.register_controller,
+        score: this.score,
+        titleScreen: this.titleScreen,
+		stageAdd: this.stageAdd,
+		stageRemove: this.stageRemove,
+        setAssets: this.setAssets
+    };
 }
+
+if ($ === undefined) { $ = function() { }; }
 
 $(function () {
     //Uses reduce to collate two arrays into an object
@@ -317,21 +351,19 @@ $(function () {
         return objAdded;
     }
 
-
     var loader = gutFeeling.Loader.load();
-    
-   loader.ready.done(function() {
-       console.log("success");
+
+    loader.ready.done(function () {
+        console.log("success");
         game = new gutFeeling.Game();
+        game.setAssets(loader.data);
         game.titleScreen();
         game.register_controller(intestine);
-        game.score = new Score();
-        game.register_controller(game.score);
-        music_ichiban.play().fadeIn().loop();
+        //music_ichiban.play().fadeIn().loop();
     });
-    loader.ready.then(undefined, function(err){
-       console.log("failure");
+    loader.ready.then(undefined, function (err) {
+        console.log("failure");
         $('body').append("<h1>Unable to load application</h1>");
     });
 
-}); //$(document).ready end
+}); 

@@ -3,25 +3,26 @@
  * Score keeps track of the current state of the game. 
  * I'm coopting this file to use for the HUD.
  */
-var Score = function() {
+
+var gutFeeling = gutFeeling || {};
+
+gutFeeling.Score = function() {
 	var self = this;
 	self.html = $('<div id=""></div>');
+    self.template;
+    self.atlas;
 
 	self.tracker = {};
-
-	self.init = function() {
-		self.html = $('#status-hud');
-	};
 
 	// Create and add a new tracker element. We are going to want to use this quite a bit
 	// As some of the flora trackers will fall off and on as time goes on.
 	self.addTracker = function( name, callback ) {
 		var icon;
 		var val;
-		if ( !self.tracker[name] && icons_src[name] ) {
-			icon = icons_src[name];
+		if ( !self.tracker[name] && self.icons[name] ) {
+			icon = self.icons[name];
 			self.tracker[name] = {
-				html: $( tmpl_html.bar_heads_up ),
+				html: $( self.template ),
 			};
 			self.html.append( self.tracker[name].html );
 
@@ -56,6 +57,7 @@ var Score = function() {
 		var tracker, tracker_name
 		for ( tracker_name in self.tracker ){
 			tracker = self.tracker[tracker_name];
+			console.log(tracker);
 			tracker.val = tracker.callback();
 			tracker.html.find(".heads-up-bar").css({
 				width: ( 50 * tracker.val / 100 ) + "px",
@@ -130,6 +132,15 @@ function scoreUpdate(food, mod, slider, totals, maximum){
             }
          }
 }
+
+gutFeeling.Score.create = function( template, icons) {
+	var score = new gutFeeling.Score();
+	score.template = template;
+	score.icons = icons ;
+	score.html = $('#status-hud');
+	
+	return score;
+};
 
 var testTurn = scoreUpdate(testFood, testMod, testSlider, nutrientTotals, sliderMax);
 testTurn.getNewTotal();

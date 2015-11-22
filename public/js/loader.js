@@ -29,21 +29,21 @@ gutFeeling.Loader = function Loader() {
     };
 
     this.setData = function setData(selector, value) {
-        if (!self.data) {
-            self.data = {};
-        }
+        self.data = self.data || {};
+        
         var cursor = self.data;
         var key_path = selector.split('.');
         var key_depth = key_path.length - 1;
         key_path.forEach(function (key, ix) {
-            if (ix < key_path) {
+            console.log(cursor, key);
+            if (ix + 1 < key_path.length) {
                 cursor[key] = cursor[key] || {};
                 cursor = cursor[key];
             } else {
-                cursor = value;
+                cursor[key] = value;
             }
         });
-    }
+    };
 
     /**
      * Request a text or binary asset
@@ -60,7 +60,6 @@ gutFeeling.Loader = function Loader() {
         return request;
     };
 };
-gutFeeling.Loader();
 gutFeeling.Loader.load = function load() {
     var loader, music_ichiban, tmpl_html, icons_src;
 
@@ -75,23 +74,36 @@ gutFeeling.Loader.load = function load() {
         // var music_ichiban = new buzz.sound("/audio/guineo-metamorfosis.mp3");
 
         // OUR HTML TEMPLATES Loading
+
         loader.getResource("/view/control_column.txt", "templates.control"),
-        loader.getResource("/view/title.txt", "templates.title"),
+        loader.getResource("/view/title.txt", "templates.title_screen"),
         loader.getResource("/view/meal.txt", "templates.meal"),
         loader.getResource("/view/body.txt", "templates.body"),
         // loader.getResource("/view/other.txt", function(data){ loader.templates.other = data; }),
         loader.getResource("/view/bar_heads_up.txt", "templates.bar_ui"),
 
         // OUR ICON IMG ASSETS Loading
-        $.getJSON("config/icons.json"),
+        loader.getJSONResource("config/icons.json", "icons.default"),
 
-        //Asset constructor works for foods and bacteria
-        $.getJSON("config/flora.json", "flora"),
-        $.getJSON("config/newfoods.json", "food"),
-        $.getJSON("config/foodmod.json", "food_mods"),
+        // Asset constructor works for foods and bacteria
+        loader.getJSONResource("config/flora.json", "flora"),
+        loader.getJSONResource("config/newfoods.json", "food"),
+        loader.getJSONResource("config/foodmod.json", "food_mods"),
+
+        // Asset requests for image files
+        loader.getResource("/img/banner.png", "img.banner"),
+        loader.getResource("/img/body.png", "img.body"),
+        //loader.getResource("/img/face.png", "img.face"),
+        loader.getResource("/img/fud_00.png", "img.food"),
+        loader.getResource("/img/gutmain.png", "img.title_bg"),
+        loader.getResource("/img/ill_00.png", "img.flora"),
+        loader.getResource("/img/meal_venue.jpg", "img.venue"),
+        loader.getResource("/img/nutrition.png", "img.icons"),
+        loader.getResource("/img/plate.png", "img.plate"),
+        loader.getResource("/img/tricolor.png", "img.banner"),
 
         // ActionEvent queue
-        $.getJSON("config/test-actions.json")
+        loader.getJSONResource("config/test-actions.json", "actions.default")
     );
 
     loader.ready.then(null, loader.failure.bind(loader));

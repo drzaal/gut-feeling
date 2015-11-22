@@ -1,58 +1,56 @@
-{
-"foodMods": [
-		{
-			"kind": "modifier",
-			"named": "Old",
-			"img": "same",
-			"triangle": [1, 1, 1.25]
+[
+    {
+        "kind": "modifier",
+        "named": "Old",
+        "img": "same",
+        "triangle": [1, 1, 1.25]
 		},
-		{
-			"kind": "modifier",
-			"named": "Spoiled",
-			"img": "lgreen",
-			"triangle": [1, 1, 1.5]
+    {
+        "kind": "modifier",
+        "named": "Spoiled",
+        "img": "lgreen",
+        "triangle": [1, 1, 1.5]
 		},
-		{
-			"kind": "modifier",
-			"named": "Rotten",
-			"img": "dgreen",
-			"triangle": [1, 1, 2]
+    {
+        "kind": "modifier",
+        "named": "Rotten",
+        "img": "dgreen",
+        "triangle": [1, 1, 2]
 		},
-		{
-			"kind": "modifier",
-			"named": "Fresh",
-			"img": "same",
-			"triangle": [1, 1.25, 1]
+    {
+        "kind": "modifier",
+        "named": "Fresh",
+        "img": "same",
+        "triangle": [1, 1.25, 1]
 		},
-		{
-			"kind": "modifier",
-			"named": "Healthy",
-			"img": "bright",
-			"triangle": [1, 1.5, 1]
+    {
+        "kind": "modifier",
+        "named": "Healthy",
+        "img": "bright",
+        "triangle": [1, 1.5, 1]
 		},
-		{
-			"kind": "modifier",
-			"named": "Super",
-			"img": "shining",
-			"triangle": [1, 2, 1]
+    {
+        "kind": "modifier",
+        "named": "Super",
+        "img": "shining",
+        "triangle": [1, 2, 1]
 		},
-		{
-			"kind": "modifier",
-			"named": "Large",
-			"img": "1.25",
-			"triangle": [1.25, 1, 1]
+    {
+        "kind": "modifier",
+        "named": "Large",
+        "img": "1.25",
+        "triangle": [1.25, 1, 1]
 		},
-		{
-			"kind": "modifier",
-			"named": "Jumbo",
-			"img": "1.5",
-			"triangle": [1.5, 1, 1]
+    {
+        "kind": "modifier",
+        "named": "Jumbo",
+        "img": "1.5",
+        "triangle": [1.5, 1, 1]
 		},
-		{
-			"kind": "modifier",
-			"named": "Enormous",
-			"img": "2",
-			"triangle": [2, 1, 1]
+    {
+        "kind": "modifier",
+        "named": "Enormous",
+        "img": "2",
+        "triangle": [2, 1, 1]
 		}
 	]
-}

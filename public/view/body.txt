@@ -1,4 +1,4 @@
-<header id="header">GUT FEELING</header>;
+<header id="header">GUT FEELING</header>
 <div id="control-overlay"></div>
 <div id="status-hud"></div>
 <div id="stage"></div>

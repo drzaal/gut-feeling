@@ -1,39 +1,79 @@
-{
-	"foods": [
-		{
-			"kind": "food",
-			"named": "Grilled Cheese",
-			"img": "img/fud_00.png",
-			"img_xywh": [ 128, 64, 64, 64 ],
-			"triangle": [5, 1, 1]
+[
+    {
+        "kind": "food",
+        "named": "Grilled Cheese",
+        "img": "img/fud_00.png",
+        "img_xywh": [128, 64, 64, 64],
+        "triangle": [5, 1, 1]
 		},
-		{
-			"kind": "food",
-			"named": "Apple Pie",
-			"img": "img/fud_00.png",
-			"img_xywh": [ 192, 64, 64, 64 ],
-			"triangle": [1,1,1]
+    {
+        "kind": "food",
+        "named": "Apple Pie",
+        "img": "img/fud_00.png",
+        "img_xywh": [192, 64, 64, 64],
+        "triangle": [1, 1, 1]
 		},
-		{
-			"kind": "food",
-			"named": "Pizza",
-			"img": "img/fud_00.png",
-			"img_xywh": [ 0, 64, 64, 64 ],
-			"triangle": [2,2,2]
+    {
+        "kind": "food",
+        "named": "Pizza",
+        "img": "img/fud_00.png",
+        "img_xywh": [0, 64, 64, 64],
+        "triangle": [2, 2, 2]
 		},
-		{
-			"kind": "food",
-			"named": "Tripe",
-			"img": "img/fud_00.png",
-			"img_xywh": [ 64, 64, 64, 64 ],
-			"triangle": [3,4,1]
+    {
+        "kind": "food",
+        "named": "Tripe",
+        "img": "img/fud_00.png",
+        "img_xywh": [64, 64, 64, 64],
+        "triangle": [3, 4, 1]
 		},
-		{
-			"kind": "food",
-			"named": "Shellfish",
-			"img": "img/fud_00.png",
-			"img_xywh": [ 64, 64, 64, 64 ],
-			"triangle": [3,3,8]
+    {
+        "kind": "food",
+        "named": "Shellfish",
+        "img": "img/fud_00.png",
+        "img_xywh": [64, 64, 64, 64],
+        "triangle": [3, 3, 8]
+		},
+    {
+        "kind": "food",
+        "named": "Broccoli",
+        "img": "img/fud_00.png",
+        "img_xywh": [0, 128, 64, 64],
+        "triangle": [1, 1, 1]
+		},
+    {
+        "kind": "food",
+        "named": "Carrots",
+        "img": "img/fud_00.png",
+        "img_xywh": [64, 128, 64, 64],
+        "triangle": [1, 1, 1]
+		},
+    {
+        "kind": "food",
+        "named": "Fish",
+        "img": "img/fud_00.png",
+        "img_xywh": [128, 128, 64, 64],
+        "triangle": [1, 1, 1]
+		},
+    {
+        "kind": "food",
+        "named": "Spaghetti",
+        "img": "img/fud_00.png",
+        "img_xywh": [192, 128, 64, 64],
+        "triangle": [1, 1, 1]
+		},
+    {
+        "kind": "food",
+        "named": "Rice",
+        "img": "img/fud_00.png",
+        "img_xywh": [0, 192, 64, 64],
+        "triangle": [1, 1, 1]
+		},
+	{
+        "kind": "food",
+        "named": "Tomato",
+        "img": "img/fud_00.png",
+        "img_xywh": [64, 192, 64, 64],
+        "triangle": [1, 1, 1]
 		}
-	]
-}
+]
