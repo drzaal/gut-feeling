@@ -162,16 +162,19 @@ gutFeeling.Game = function Game() {
         $("#stage").append(renderer.view);
         console.log("STAGE width %s height %s", stage.width, stage.height);
 
-        var gourmand = gutFeeling.Gourmand.create(self.getBounds());
-
         // Calculating viewport proportions.
         var meal_venue = self.meal_venue = new PIXI.Sprite(PIXI.Texture.fromImage('/img/meal_venue.jpg'));
         self.levelBG = meal_venue;
 
         self.resize();
 
+		console.log(self.stage);
+
         stage.addChild(meal_venue);
-        stage.addChild(gourmand);
+
+        var gourmand = self.gourmand = gutFeeling.Gourmand.create(self.stageAdd, self.getBounds());
+		console.log(gourmand);
+        self.register_controller(gourmand);
 
         self.tri_controller = new Tricontroller({
             "parent": $("#control-overlay"),

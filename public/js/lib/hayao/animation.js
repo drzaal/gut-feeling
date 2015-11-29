@@ -89,6 +89,7 @@ hayao.Animation.copy = function (Animation) {
     tmpanim.name = Animation.name;
     tmpanim.spritesheet = Animation.spritesheet;
     tmpanim.duration = Animation.duration;
+    tmpanim.period = Animation.period;
     tmpanim.frames = Animation.frames;
     tmpanim.playhead = 0;
 

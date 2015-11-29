@@ -1,8 +1,10 @@
+var gutFeeling = gutFeeling || {};
+
 /**
  * Biome inhabitants of the gut.
  * @param PIXI.Stage stage. This is where our sprite is going to end up displaying
  */
-var Flora = function (stageAdd, type, event, args) {
+var Flora = gutFeeling.Flora = function (stageAdd, type, event, args) {
     var self = this;
     self.sluggishness = Math.random() * 16;
 
@@ -92,7 +94,7 @@ $(function () {
             Flora.texture_main = resources['ill'].texture; //PIXI.Texture.fromImage('img/ill_00.png');
             Flora.type = [];
 
-            Flora.spritesheet = hayao.Spritesheet.create(PIXI.Texture.fromImage('img/ill_00.png'));
+            Flora.spritesheet = hayao.Spritesheet.create(Flora.texture_main);
             Flora.spritesheet.mapAtlas(128, 128,
                 function (atlas, x1, y1, x2, y2) {
                     console.log(x1,y1,x2,y2);
